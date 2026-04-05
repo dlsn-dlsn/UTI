@@ -441,7 +441,7 @@ function renderLeitos(){
   return`
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
       <div style="font-size:13px;font-weight:500">Selecionar leito</div>
-      ${ocp?`<button class="btn btn-danger btn-sm" onclick="if(confirm('Dar alta / liberar leito ${l.num}?')){toggleOcupado(${S.currentLeito})}">Alta / Liberar</button>`:''}
+      ${ocp?'<button class="btn btn-danger btn-sm" onclick="altaLeito('+S.currentLeito+')">Alta / Liberar</button>':''}
     </div>
     <div class="leito-nav">${leitoNav}</div>
     <div class="card${ocp?' card-accent':''}">
@@ -450,7 +450,7 @@ function renderLeitos(){
           <div class="leito-badge">${l.num}</div>
           <div>
             <div class="leito-name">${statusLabel}</div>
-            <div class="leito-meta">${ocp&&l.idade?l.idade+'a':''} ${ocp&&l.peso?l.peso+'kg':''} ${ocp&&l.sexo?l.sexo===\'M\'?'♂':'♀':''}</div>
+            <div class="leito-meta">${ocp&&l.idade?l.idade+'a':''} ${ocp&&l.peso?l.peso+'kg':''} ${ocp?(l.sexo==='M'?'♂':'♀'):''}</div>
           </div>
         </div>
         <div class="leito-status">
@@ -767,12 +767,20 @@ function injectManifest(){
   const l=document.createElement('link');l.rel='manifest';l.href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/json'}));document.head.appendChild(l);
 }
 function registerSW(){
-  if(!('serviceWorker' in navigator))return;
-  const sw=`const C='uti-cache-v1';self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.add('/')));self.skipWaiting();});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))));});self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>r))));`;
-  navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'}))).catch(()=>{});
+  // SW via blob URL is blocked on some hosts; skip gracefully
+  try{
+    if(!('serviceWorker' in navigator))return;
+    const sw=`const C='uti-cache-v1';self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.add('/')));self.skipWaiting();});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))));});self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>r))));`;
+    const blob=new Blob([sw],{type:'application/javascript'});
+    const url=URL.createObjectURL(blob);
+    navigator.serviceWorker.register(url).catch(()=>{});
+  }catch(e){}
 }
 
-loadData();injectManifest();registerSW();render();
+try{loadData();}catch(e){console.warn('loadData error',e);}
+try{injectManifest();}catch(e){}
+try{registerSW();}catch(e){}
+try{render();}catch(e){document.getElementById('content').innerHTML='<div style="padding:2rem;color:#f08080;font-family:monospace;font-size:12px">Erro ao carregar: '+e.message+'</div>';}
 </script>
 </body>
 </html>
