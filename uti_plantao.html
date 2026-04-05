@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="UTI Plantão">
+<title>UTI Plantão</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@400;500;600&display=swap');
+:root{
+  --bg:#07090f;--bg2:#0c0f1a;--bg3:#111525;--bg4:#161c2e;
+  --border:rgba(100,130,255,.1);--border2:rgba(100,130,255,.18);
+  --text:#e8eaf6;--text2:#8892b0;--text3:#4a5270;
+  --accent:#4f6fff;--accent2:#3a55e0;--accent-dim:rgba(79,111,255,.12);--accent-dim2:rgba(79,111,255,.06);--accent-border:rgba(79,111,255,.3);--accent-text:#8aabff;
+  --blue:#378ADD;--blue-dim:rgba(55,138,221,.12);--blue-border:rgba(55,138,221,.28);--blue-text:#85B7EB;
+  --green:#1fa86e;--green-dim:rgba(31,168,110,.12);--green-border:rgba(31,168,110,.28);--green-text:#5dcaa5;
+  --amber:#d4900a;--amber-dim:rgba(212,144,10,.12);--amber-border:rgba(212,144,10,.28);--amber-text:#f0b842;
+  --red:#c94040;--red-dim:rgba(201,64,64,.12);--red-border:rgba(201,64,64,.28);--red-text:#f08080;
+  --coral:#b85030;--coral-dim:rgba(184,80,48,.12);--coral-border:rgba(184,80,48,.28);--coral-text:#e8906a;
+  --purple:#7c5abf;--purple-dim:rgba(124,90,191,.12);--purple-border:rgba(124,90,191,.28);--purple-text:#b89ae0;
+  --r:10px;--rs:6px;--mono:'IBM Plex Mono',monospace;--sans:'Syne',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{background:var(--bg)}
+body{font-family:var(--sans);color:var(--text);background:var(--bg);min-height:100dvh}
+#app{max-width:560px;margin:0 auto;padding:0 0 5rem;min-height:100dvh}
+
+/* Header */
+.header{padding:1.25rem 1rem 0;display:flex;align-items:center;justify-content:space-between}
+.header-left{display:flex;align-items:center;gap:10px}
+.logo-dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);flex-shrink:0}
+.logo-title{font-size:18px;font-weight:600;letter-spacing:-.02em}
+.logo-sub{font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:1px}
+.date-badge{font-size:11px;color:var(--text3);font-family:var(--mono);background:var(--bg3);border:.5px solid var(--border);padding:4px 10px;border-radius:20px}
+
+/* Nav */
+.nav{display:flex;margin:1.25rem 1rem 0;background:var(--bg3);border-radius:var(--r);padding:3px;border:.5px solid var(--border)}
+.nav button{flex:1;padding:8px 4px;border:none;background:transparent;border-radius:8px;font-size:11px;font-weight:500;color:var(--text3);cursor:pointer;transition:all .18s;font-family:var(--sans)}
+.nav button.active{background:var(--bg4);color:var(--text);border:.5px solid var(--border2)}
+
+.content{padding:1rem}
+.card{background:var(--bg2);border:.5px solid var(--border);border-radius:var(--r);padding:1rem 1.1rem;margin-bottom:10px}
+.card-accent{border-color:var(--accent-border)}
+.section-label{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:10px}
+.divider{border:none;border-top:.5px solid var(--border);margin:.75rem 0}
+
+/* Leito header */
+.leito-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.leito-num{display:flex;align-items:center;gap:8px}
+.leito-badge{width:32px;height:32px;border-radius:8px;background:var(--accent-dim);border:.5px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:var(--accent-text);font-family:var(--mono);flex-shrink:0}
+.leito-name{font-size:14px;font-weight:500}
+.leito-meta{font-size:11px;color:var(--text3)}
+.leito-status{display:flex;align-items:center;gap:6px}
+.status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* Fields */
+.field{margin-bottom:10px}
+.field label{display:block;font-size:11px;color:var(--text3);margin-bottom:4px;letter-spacing:.02em}
+.field input,.field select,.field textarea{width:100%;padding:8px 10px;border:.5px solid var(--border2);border-radius:var(--rs);background:var(--bg3);color:var(--text);font-size:13px;font-family:var(--sans);appearance:none;-webkit-appearance:none;transition:border-color .15s;outline:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent)}
+.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a5270' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+.field textarea{resize:vertical;min-height:56px;line-height:1.5}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}
+
+/* Buttons */
+.btn{padding:9px 16px;border-radius:var(--rs);border:.5px solid var(--border2);background:var(--bg3);color:var(--text);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--sans);transition:all .15s;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:hover{background:var(--bg4)}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-primary:hover{background:var(--accent2)}
+.btn-danger{background:var(--red-dim);color:var(--red-text);border-color:var(--red-border)}
+.btn-green{background:var(--green-dim);color:var(--green-text);border-color:var(--green-border)}
+.btn-sm{padding:5px 10px;font-size:11px}
+.btn-full{width:100%}
+.btn-icon{padding:4px 8px;background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:14px}
+.btn-icon:hover{color:var(--red-text)}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:500}
+.badge-blue{background:var(--blue-dim);border:.5px solid var(--blue-border);color:var(--blue-text)}
+.badge-green{background:var(--green-dim);border:.5px solid var(--green-border);color:var(--green-text)}
+.badge-amber{background:var(--amber-dim);border:.5px solid var(--amber-border);color:var(--amber-text)}
+.badge-red{background:var(--red-dim);border:.5px solid var(--red-border);color:var(--red-text)}
+.badge-purple{background:var(--purple-dim);border:.5px solid var(--purple-border);color:var(--purple-text)}
+.badge-accent{background:var(--accent-dim);border:.5px solid var(--accent-border);color:var(--accent-text)}
+
+/* Tabs within leito */
+.inner-tabs{display:flex;gap:0;margin-bottom:12px;background:var(--bg3);border-radius:var(--rs);padding:2px;border:.5px solid var(--border)}
+.inner-tab{flex:1;padding:6px 4px;border:none;background:transparent;border-radius:5px;font-size:11px;font-weight:500;color:var(--text3);cursor:pointer;transition:all .15s;font-family:var(--sans);text-align:center}
+.inner-tab.active{background:var(--bg4);color:var(--text);border:.5px solid var(--border2)}
+.inner-tab.has-data{color:var(--accent-text)}
+
+/* Exame item */
+.exam-item{display:flex;align-items:center;gap:6px;padding:6px 8px;border:.5px solid var(--border);border-radius:var(--rs);margin-bottom:5px;background:var(--bg3)}
+.exam-name{font-size:12px;color:var(--text2);min-width:110px;flex-shrink:0}
+.exam-val{flex:1;font-size:13px;font-weight:500;font-family:var(--mono);color:var(--text)}
+.exam-val input{background:transparent;border:none;outline:none;font-family:var(--mono);font-size:13px;color:var(--text);width:100%;padding:0}
+.exam-flag{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* Drug row */
+.drug-row{display:flex;align-items:center;gap:6px;padding:6px 8px;border:.5px solid var(--border);border-radius:var(--rs);margin-bottom:5px;background:var(--bg3)}
+.drug-name-inp{flex:1;font-size:12px;background:transparent;border:none;outline:none;font-family:var(--sans);color:var(--text);min-width:0}
+.drug-dose-inp{width:90px;font-size:12px;font-family:var(--mono);background:transparent;border:none;outline:none;color:var(--accent-text);text-align:right}
+
+/* Pendência item */
+.pend-item{display:flex;align-items:flex-start;gap:8px;padding:7px 8px;border:.5px solid var(--amber-border);border-radius:var(--rs);margin-bottom:5px;background:var(--amber-dim)}
+.pend-text{flex:1;font-size:12px;background:transparent;border:none;outline:none;font-family:var(--sans);color:var(--text);line-height:1.4}
+.pend-done{width:16px;height:16px;border-radius:4px;border:.5px solid var(--amber-border);background:transparent;cursor:pointer;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:10px}
+.pend-done.done{background:var(--green);border-color:var(--green);color:#fff}
+
+/* Leito card states */
+.leito-card{position:relative}
+.leito-card.vazio .leito-badge{background:var(--bg3);border-color:var(--border);color:var(--text3)}
+
+/* Whatsapp output */
+.wa-output{background:var(--bg3);border:.5px solid var(--green-border);border-radius:var(--r);padding:1rem;font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--text);white-space:pre-wrap;word-break:break-word;max-height:60vh;overflow-y:auto;margin-bottom:10px}
+.wa-output::-webkit-scrollbar{width:3px}
+.wa-output::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* Leito selector */
+.leito-nav{display:flex;gap:6px;margin-bottom:12px}
+.leito-btn{flex:1;padding:10px 6px;border:.5px solid var(--border2);border-radius:var(--rs);background:var(--bg3);color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;font-family:var(--sans);transition:all .15s;text-align:center}
+.leito-btn:hover{border-color:var(--accent-border);color:var(--accent-text)}
+.leito-btn.active{background:var(--accent-dim);border-color:var(--accent-border);color:var(--accent-text)}
+.leito-btn.ocupado::after{content:'';display:block;width:5px;height:5px;border-radius:50%;background:var(--green);margin:3px auto 0}
+.leito-btn.vazio::after{content:'';display:block;width:5px;height:5px;border-radius:50%;background:var(--border2);margin:3px auto 0}
+
+/* Quick exam chips */
+.chip-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+.echip{padding:4px 9px;border:.5px solid var(--border2);border-radius:14px;font-size:11px;color:var(--text3);cursor:pointer;background:transparent;transition:all .15s;font-family:var(--sans)}
+.echip:hover{border-color:var(--accent-border);color:var(--accent-text);background:var(--accent-dim2)}
+
+/* VM chips */
+.vm-chip{padding:5px 10px;border:.5px solid var(--border2);border-radius:14px;font-size:11px;color:var(--text2);cursor:pointer;background:var(--bg3);transition:all .15s;font-family:var(--sans)}
+.vm-chip.active{background:var(--blue-dim);border-color:var(--blue-border);color:var(--blue-text)}
+
+.spinner{width:12px;height:12px;border:2px solid rgba(255,255,255,.2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast{position:fixed;bottom:5.5rem;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;padding:8px 20px;border-radius:20px;font-size:13px;font-weight:500;z-index:100;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--text3);font-size:13px}
+.info-bar{font-size:11px;color:var(--text3);line-height:1.6;margin-bottom:8px}
+@media(display-mode:standalone){.pwa-hide{display:none}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <div class="header-left">
+      <div class="logo-dot"></div>
+      <div>
+        <div class="logo-title">UTI Plantão</div>
+        <div class="logo-sub" id="headerSub">4 leitos</div>
+      </div>
+    </div>
+    <div class="date-badge" id="dateBadge"></div>
+  </div>
+  <nav class="nav">
+    <button onclick="setTab('leitos')" id="tab-leitos" class="active">Leitos</button>
+    <button onclick="setTab('passagem')" id="tab-passagem">Passagem</button>
+    <button onclick="setTab('config')" id="tab-config">Config</button>
+  </nav>
+  <div class="content" id="content"></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const VER='uti_plantao_v1';
+const MAX_LEITOS=4;
+
+const EXAMES_PADRAO=[
+  {key:'hb',    name:'Hb',       unit:'g/dL', low:7,  high:18},
+  {key:'ht',    name:'Ht',       unit:'%',    low:21, high:54},
+  {key:'leuco', name:'Leucócitos',unit:'k/µL',low:4,  high:12},
+  {key:'plaq',  name:'Plaquetas',unit:'k/µL', low:100,high:400},
+  {key:'na',    name:'Na',       unit:'mEq/L',low:136,high:145},
+  {key:'k',     name:'K',        unit:'mEq/L',low:3.5,high:5.0},
+  {key:'ur',    name:'Ureia',    unit:'mg/dL',low:0,  high:50},
+  {key:'cr',    name:'Creatinina',unit:'mg/dL',low:0, high:1.2},
+  {key:'gli',   name:'Glicemia', unit:'mg/dL',low:70, high:180},
+  {key:'pco2',  name:'pCO2',     unit:'mmHg', low:35, high:45},
+  {key:'po2',   name:'pO2',      unit:'mmHg', low:80, high:100},
+  {key:'ph',    name:'pH',       unit:'',     low:7.35,high:7.45},
+  {key:'bic',   name:'HCO3',     unit:'mEq/L',low:22, high:26},
+  {key:'be',    name:'BE',       unit:'mEq/L',low:-2,  high:2},
+  {key:'lac',   name:'Lactato',  unit:'mmol/L',low:0, high:2},
+  {key:'pcr',   name:'PCR',      unit:'mg/L',  low:0, high:10},
+  {key:'pct',   name:'Procalcitonina',unit:'ng/mL',low:0,high:0.5},
+  {key:'alt',   name:'ALT',      unit:'U/L',   low:0,  high:40},
+  {key:'ast',   name:'AST',      unit:'U/L',   low:0,  high:40},
+  {key:'bt',    name:'BT',       unit:'mg/dL', low:0,  high:1.2},
+  {key:'tni',   name:'TnI',      unit:'ng/mL', low:0,  high:0.04},
+  {key:'bnp',   name:'BNP',      unit:'pg/mL', low:0,  high:100},
+  {key:'rni',   name:'RNI',      unit:'',      low:0.8,high:1.2},
+  {key:'ttpa',  name:'TTPa',     unit:'s',     low:25, high:35},
+  {key:'fibri', name:'Fibrinogênio',unit:'mg/dL',low:200,high:400},
+  {key:'alb',   name:'Albumina', unit:'g/dL',  low:3.5,high:5},
+  {key:'mg',    name:'Magnésio', unit:'mg/dL', low:1.7,high:2.2},
+  {key:'ca',    name:'Cálcio',   unit:'mg/dL', low:8.5,high:10.5},
+  {key:'fosf',  name:'Fósforo',  unit:'mg/dL', low:2.5,high:4.5},
+];
+
+const VM_MODOS=['VCV','PCV','PSV','CPAP','SIMV','APRV','BiPAP','VNI'];
+const SEDACAO_ESCALAS=['RASS','Ramsay','BPS','NRS','EVA'];
+const SEDACAO_DROGAS=['Midazolam','Propofol','Dexmedetomidina','Fentanil','Morfina','Ketamina','Sufentanil','Haloperidol','Diazepam','Clonidina'];
+const VASOATIVAS=['Noradrenalina','Adrenalina','Vasopressina','Dobutamina','Dopamina','Milrinona','Fenilefrina','Terlipressina'];
+
+function emptyLeito(n){
+  return{
+    num:n, ocupado:false,
+    nome:'',idade:'',peso:'',sexo:'M',
+    hd:'', // hipótese diagnóstica
+    tab:'dados',
+    // VM
+    vm:false, vmModo:'VCV', vmFio2:'', vmPeep:'', vmVt:'', vmFr:'', vmPip:'', vmSpo2:'',
+    // Vasoativas
+    vasoativas:[],
+    // Sedação
+    sedEscala:'RASS', sedScore:'', sedDrogas:[],
+    // Balanço
+    diurese:'', balanco:'', balPeriodo:'24h',
+    // Exames - objeto key->valor
+    exames:{}, customExames:[],
+    // Pendências
+    pendencias:[],
+    // Condutas
+    condutas:'',
+    // Obs
+    obs:'',
+  };
+}
+
+let S={
+  leitos:[1,2,3,4].map(n=>emptyLeito(n)),
+  currentLeito:0,
+  tab:'leitos',
+  learnedExames:[],
+  plantaoData: new Date().toLocaleDateString('pt-BR'),
+  plantaoTurno:'Manhã',
+  medicoNome:'',
+};
+
+function persist(){
+  localStorage.setItem(VER,JSON.stringify({
+    leitos:S.leitos, learnedExames:S.learnedExames,
+    medicoNome:S.medicoNome, plantaoTurno:S.plantaoTurno,
+  }));
+}
+function loadData(){
+  try{
+    const d=JSON.parse(localStorage.getItem(VER)||'null');
+    if(!d)return;
+    if(d.leitos)S.leitos=d.leitos.map((l,i)=>({...emptyLeito(i+1),...l}));
+    if(d.learnedExames)S.learnedExames=d.learnedExames;
+    if(d.medicoNome)S.medicoNome=d.medicoNome;
+    if(d.plantaoTurno)S.plantaoTurno=d.plantaoTurno;
+  }catch(e){}
+}
+
+function toast(msg,d=2200){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),d);}
+const L=()=>S.leitos[S.currentLeito];
+function setTab(t){S.tab=t;document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));document.getElementById('tab-'+t).classList.add('active');render();}
+function setLeitoTab(t){L().tab=t;render();}
+function setLeito(i){S.currentLeito=i;render();}
+
+function examFlag(key,val){
+  const e=EXAMES_PADRAO.find(e=>e.key===key);
+  if(!e||!val)return'';
+  const v=parseFloat(val);
+  if(isNaN(v))return'';
+  if(v<e.low)return'low';
+  if(v>e.high)return'high';
+  return'ok';
+}
+
+function allExamesList(){
+  const custom=S.learnedExames.map(n=>({key:'c_'+n.replace(/\s/g,'_'),name:n,unit:'',low:null,high:null,custom:true}));
+  return[...EXAMES_PADRAO,...custom];
+}
+
+// ── WHATSAPP TEXT ──────────────────────────────────────────────────────────
+function gerarTexto(){
+  const agora=new Date();
+  const hora=agora.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  const data=agora.toLocaleDateString('pt-BR');
+  let txt='';
+  txt+=`╔══════════════════════╗\n`;
+  txt+=`║  🏥 UTI — PASSAGEM   ║\n`;
+  txt+=`╚══════════════════════╝\n`;
+  txt+=`📅 ${data}  ⏰ ${hora}\n`;
+  txt+=`🔄 Turno: ${S.plantaoTurno}\n`;
+  if(S.medicoNome) txt+=`👨‍⚕️ Dr(a). ${S.medicoNome}\n`;
+  txt+=`\n`;
+
+  const ocupados=S.leitos.filter(l=>l.ocupado);
+  if(ocupados.length===0){txt+='Nenhum leito ocupado.\n';return txt;}
+
+  ocupados.forEach((l,idx)=>{
+    txt+=`┌─────────────────────┐\n`;
+    txt+=`│ LEITO ${l.num}${l.nome?' — '+l.nome.toUpperCase():' — VAGO'}  \n`;
+    txt+=`└─────────────────────┘\n`;
+    if(l.nome){
+      const sexo=l.sexo==='M'?'♂':'♀';
+      txt+=`${sexo} ${l.idade?l.idade+'a':''}${l.peso?' · '+l.peso+'kg':''}\n`;
+      if(l.hd) txt+=`📋 HD: ${l.hd}\n`;
+
+      // VM
+      if(l.vm){
+        txt+=`\n🫁 *VM:* ${l.vmModo||'—'}`;
+        if(l.vmFio2) txt+=` · FiO2 ${l.vmFio2}%`;
+        if(l.vmPeep) txt+=` · PEEP ${l.vmPeep}`;
+        if(l.vmVt)   txt+=` · VT ${l.vmVt}`;
+        if(l.vmFr)   txt+=` · FR ${l.vmFr}`;
+        if(l.vmPip)  txt+=` · PIP ${l.vmPip}`;
+        if(l.vmSpo2) txt+=` · SpO2 ${l.vmSpo2}%`;
+        txt+=`\n`;
+      }
+
+      // Vasoativas
+      const vaso=(l.vasoativas||[]).filter(v=>v.nome&&v.dose);
+      if(vaso.length){
+        txt+=`\n💊 *Vasoativas:*\n`;
+        vaso.forEach(v=>txt+=`  • ${v.nome}: ${v.dose}\n`);
+      }
+
+      // Sedação
+      if(l.sedScore||l.sedDrogas?.length){
+        txt+=`\n😴 *Sedação:* ${l.sedEscala} ${l.sedScore||'—'}`;
+        const sd=(l.sedDrogas||[]).filter(v=>v.nome&&v.dose);
+        if(sd.length) txt+=` · `+sd.map(v=>`${v.nome} ${v.dose}`).join(', ');
+        txt+=`\n`;
+      }
+
+      // Balanço
+      if(l.diurese||l.balanco){
+        txt+=`\n💧 *Balanço (${l.balPeriodo||'24h'}):*`;
+        if(l.diurese) txt+=` Diurese ${l.diurese} mL`;
+        if(l.balanco) txt+=` · BH ${l.balanco} mL`;
+        txt+=`\n`;
+      }
+
+      // Exames
+      const allE=allExamesList();
+      const exEntries=Object.entries(l.exames||{}).filter(([k,v])=>v);
+      if(exEntries.length){
+        txt+=`\n🧪 *Exames:*\n`;
+        exEntries.forEach(([k,v])=>{
+          const def=allE.find(e=>e.key===k);
+          const name=def?def.name:k;
+          const flag=examFlag(k,v);
+          const icon=flag==='low'?'⬇️':flag==='high'?'⬆️':'';
+          txt+=`  ${icon||'·'} ${name}: ${v}${def?.unit?' '+def.unit:''}\n`;
+        });
+        // custom exames do leito
+        (l.customExames||[]).filter(e=>e.nome&&e.valor).forEach(e=>{
+          txt+=`  · ${e.nome}: ${e.valor}${e.unit?' '+e.unit:''}\n`;
+        });
+      }
+
+      // Pendências
+      const pends=(l.pendencias||[]).filter(p=>p.texto&&!p.feito);
+      if(pends.length){
+        txt+=`\n⚠️ *PENDÊNCIAS:*\n`;
+        pends.forEach(p=>txt+=`  🔴 ${p.texto}\n`);
+      }
+
+      // Condutas
+      if(l.condutas){
+        txt+=`\n✅ *Condutas:*\n`;
+        l.condutas.split('\n').filter(Boolean).forEach(c=>txt+=`  • ${c}\n`);
+      }
+
+      // Obs
+      if(l.obs){
+        txt+=`\n📝 ${l.obs}\n`;
+      }
+    }
+    if(idx<ocupados.length-1) txt+=`\n`;
+  });
+
+  txt+=`\n════════════════════════\n`;
+  const pendTotal=S.leitos.reduce((a,l)=>a+(l.pendencias||[]).filter(p=>p.texto&&!p.feito).length,0);
+  txt+=`⚠️ Total de pendências: ${pendTotal}\n`;
+  txt+=`👋 Bom plantão!\n`;
+  return txt;
+}
+
+// ── RENDER ─────────────────────────────────────────────────────────────────
+function render(){
+  const c=document.getElementById('content');if(!c)return;
+  const agora=new Date();
+  document.getElementById('dateBadge').textContent=agora.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'});
+  const ocp=S.leitos.filter(l=>l.ocupado).length;
+  document.getElementById('headerSub').textContent=`${ocp}/${MAX_LEITOS} leitos ocupados`;
+  switch(S.tab){
+    case'leitos':   c.innerHTML=renderLeitos();   break;
+    case'passagem': c.innerHTML=renderPassagem(); break;
+    case'config':   c.innerHTML=renderConfig();   break;
+  }
+}
+
+// ── LEITOS ─────────────────────────────────────────────────────────────────
+function renderLeitos(){
+  const l=L();
+  const leitoNav=S.leitos.map((lt,i)=>`
+    <button class="leito-btn${S.currentLeito===i?' active':''}${lt.ocupado?' ocupado':' vazio'}" onclick="setLeito(${i})">
+      L${lt.num}
+    </button>`).join('');
+
+  const ocp=l.ocupado;
+  const tabs=['dados','clinico','exames','pendencias'];
+  const tabLabels={dados:'Dados',clinico:'Clínico',exames:'Exames',pendencias:'Pendências'};
+  const hasData={
+    dados:!!(l.nome||l.hd),
+    clinico:!!(l.vm||l.vasoativas?.filter(v=>v.nome).length||l.sedScore),
+    exames:!!(Object.values(l.exames||{}).some(Boolean)||(l.customExames||[]).some(e=>e.valor)),
+    pendencias:!!(l.pendencias?.filter(p=>p.texto).length||l.condutas||l.obs),
+  };
+
+  const innerTabs=tabs.map(t=>`<button class="inner-tab${l.tab===t?' active':''}${hasData[t]?' has-data':''}" onclick="setLeitoTab('${t}')">${tabLabels[t]}</button>`).join('');
+
+  let body='';
+  if(!ocp){
+    body=`<div class="empty" style="padding:1.5rem 0">Leito vazio<br><button class="btn btn-primary btn-sm" style="margin-top:12px" onclick="toggleOcupado(${S.currentLeito})">Admitir paciente</button></div>`;
+  } else {
+    switch(l.tab){
+      case'dados':     body=renderTabDados(l);      break;
+      case'clinico':   body=renderTabClinico(l);    break;
+      case'exames':    body=renderTabExames(l);     break;
+      case'pendencias':body=renderTabPendencias(l); break;
+    }
+  }
+
+  const statusColor=ocp?'var(--green)':'var(--text3)';
+  const statusLabel=ocp?(l.nome||'Ocupado'):'Vazio';
+
+  return`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="font-size:13px;font-weight:500">Selecionar leito</div>
+      ${ocp?`<button class="btn btn-danger btn-sm" onclick="if(confirm('Dar alta / liberar leito ${l.num}?')){toggleOcupado(${S.currentLeito})}">Alta / Liberar</button>`:''}
+    </div>
+    <div class="leito-nav">${leitoNav}</div>
+    <div class="card${ocp?' card-accent':''}">
+      <div class="leito-header">
+        <div class="leito-num">
+          <div class="leito-badge">${l.num}</div>
+          <div>
+            <div class="leito-name">${statusLabel}</div>
+            <div class="leito-meta">${ocp&&l.idade?l.idade+'a':''} ${ocp&&l.peso?l.peso+'kg':''} ${ocp&&l.sexo?l.sexo===\'M\'?'♂':'♀':''}</div>
+          </div>
+        </div>
+        <div class="leito-status">
+          <div class="status-dot" style="background:${statusColor}"></div>
+          <span style="font-size:11px;color:var(--text3)">${ocp?'Ocupado':'Vazio'}</span>
+        </div>
+      </div>
+      ${ocp?`<div class="inner-tabs">${innerTabs}</div>${body}`:body}
+    </div>`;
+}
+
+function toggleOcupado(i){
+  S.leitos[i].ocupado=!S.leitos[i].ocupado;
+  if(!S.leitos[i].ocupado){
+    const n=S.leitos[i].num;
+    S.leitos[i]=emptyLeito(n);
+  }
+  persist();render();
+}
+
+function renderTabDados(l){
+  return`
+    <div class="grid2">
+      <div class="field"><label>Nome / Iniciais</label><input type="text" placeholder="Ex: J.S." value="${l.nome||''}" oninput="L().nome=this.value;persist();updateHeader()"></div>
+      <div class="field"><label>Sexo</label><select onchange="L().sexo=this.value;persist()"><option value="M"${l.sexo==='M'?' selected':''}>Masculino</option><option value="F"${l.sexo==='F'?' selected':''}>Feminino</option></select></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Idade</label><input type="number" inputmode="numeric" placeholder="anos" value="${l.idade||''}" oninput="L().idade=this.value;persist()"></div>
+      <div class="field"><label>Peso (kg)</label><input type="number" inputmode="decimal" placeholder="kg" value="${l.peso||''}" oninput="L().peso=this.value;persist()"></div>
+    </div>
+    <div class="field"><label>Hipótese diagnóstica / Motivo internação</label><textarea placeholder="Ex: Sepse foco pulmonar, SDRA, IOT D2..." oninput="L().hd=this.value;persist()" style="min-height:70px">${l.hd||''}</textarea></div>`;
+}
+
+function renderTabClinico(l){
+  // VM
+  const vmModos=VM_MODOS.map(m=>`<button class="vm-chip${l.vmModo===m?' active':''}" onclick="L().vmModo='${m}';persist();render()">${m}</button>`).join('');
+
+  // Vasoativas
+  const vasoRows=(l.vasoativas||[]).map((v,i)=>`
+    <div class="drug-row">
+      <input class="drug-name-inp" type="text" placeholder="Droga vasoativa" value="${v.nome||''}" list="vasoList" oninput="L().vasoativas[${i}].nome=this.value;persist()">
+      <input class="drug-dose-inp" type="text" placeholder="dose/unidade" value="${v.dose||''}" oninput="L().vasoativas[${i}].dose=this.value;persist()">
+      <button class="btn-icon" onclick="L().vasoativas.splice(${i},1);persist();render()">×</button>
+    </div>`).join('');
+
+  // Sedação drogas
+  const sedRows=(l.sedDrogas||[]).map((v,i)=>`
+    <div class="drug-row">
+      <input class="drug-name-inp" type="text" placeholder="Droga" value="${v.nome||''}" list="sedList" oninput="L().sedDrogas[${i}].nome=this.value;persist()">
+      <input class="drug-dose-inp" type="text" placeholder="dose/unidade" value="${v.dose||''}" oninput="L().sedDrogas[${i}].dose=this.value;persist()">
+      <button class="btn-icon" onclick="L().sedDrogas.splice(${i},1);persist();render()">×</button>
+    </div>`).join('');
+
+  const sedEscOpts=SEDACAO_ESCALAS.map(e=>`<option value="${e}"${l.sedEscala===e?' selected':''}>${e}</option>`).join('');
+
+  return`
+    <datalist id="vasoList">${VASOATIVAS.map(v=>`<option value="${v}">`).join('')}</datalist>
+    <datalist id="sedList">${SEDACAO_DROGAS.map(v=>`<option value="${v}">`).join('')}</datalist>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <span class="section-label" style="margin-bottom:0">Ventilação mecânica</span>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer">
+        <input type="checkbox" ${l.vm?'checked':''} onchange="L().vm=this.checked;persist();render()" style="width:14px;height:14px;accent-color:var(--accent)"> Em VM
+      </label>
+    </div>
+    ${l.vm?`
+      <div class="chip-row">${vmModos}</div>
+      <div class="grid3">
+        <div class="field"><label>FiO2 (%)</label><input type="number" inputmode="decimal" placeholder="40" value="${l.vmFio2||''}" oninput="L().vmFio2=this.value;persist()"></div>
+        <div class="field"><label>PEEP</label><input type="number" inputmode="decimal" placeholder="5" value="${l.vmPeep||''}" oninput="L().vmPeep=this.value;persist()"></div>
+        <div class="field"><label>VT (mL)</label><input type="number" inputmode="decimal" placeholder="450" value="${l.vmVt||''}" oninput="L().vmVt=this.value;persist()"></div>
+      </div>
+      <div class="grid3">
+        <div class="field"><label>FR (irpm)</label><input type="number" inputmode="decimal" placeholder="14" value="${l.vmFr||''}" oninput="L().vmFr=this.value;persist()"></div>
+        <div class="field"><label>PIP (cmH2O)</label><input type="number" inputmode="decimal" placeholder="25" value="${l.vmPip||''}" oninput="L().vmPip=this.value;persist()"></div>
+        <div class="field"><label>SpO2 (%)</label><input type="number" inputmode="decimal" placeholder="98" value="${l.vmSpo2||''}" oninput="L().vmSpo2=this.value;persist()"></div>
+      </div>`:`<div style="font-size:12px;color:var(--text3);padding:4px 0 10px">Marque "Em VM" para expandir os parâmetros.</div>`}
+
+    <hr class="divider">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <span class="section-label" style="margin-bottom:0">Drogas vasoativas</span>
+      <button class="btn btn-sm" onclick="L().vasoativas=L().vasoativas||[];L().vasoativas.push({nome:'',dose:''});persist();render()">+ Adicionar</button>
+    </div>
+    ${vasoRows||`<div style="font-size:12px;color:var(--text3);padding:2px 0 8px">Nenhuma droga vasoativa.</div>`}
+
+    <hr class="divider">
+    <div class="section-label">Sedação e analgesia</div>
+    <div class="grid2" style="margin-bottom:8px">
+      <div class="field" style="margin-bottom:0"><label>Escala</label><select onchange="L().sedEscala=this.value;persist()">${sedEscOpts}</select></div>
+      <div class="field" style="margin-bottom:0"><label>Score atual</label><input type="text" placeholder="ex: -2" value="${l.sedScore||''}" oninput="L().sedScore=this.value;persist()"></div>
+    </div>
+    ${sedRows}
+    <button class="btn btn-sm" onclick="L().sedDrogas=L().sedDrogas||[];L().sedDrogas.push({nome:'',dose:''});persist();render()">+ Droga sedoanalgesia</button>
+
+    <hr class="divider">
+    <div class="section-label">Diurese e balanço hídrico</div>
+    <div class="grid3">
+      <div class="field"><label>Diurese (mL)</label><input type="number" inputmode="numeric" placeholder="800" value="${l.diurese||''}" oninput="L().diurese=this.value;persist()"></div>
+      <div class="field"><label>BH (mL)</label><input type="number" inputmode="numeric" placeholder="-300" value="${l.balanco||''}" oninput="L().balanco=this.value;persist()"></div>
+      <div class="field"><label>Período</label><select onchange="L().balPeriodo=this.value;persist()"><option ${l.balPeriodo==='24h'?'selected':''}>24h</option><option ${l.balPeriodo==='12h'?'selected':''}>12h</option><option ${l.balPeriodo==='6h'?'selected':''}>6h</option><option ${l.balPeriodo==='plantão'?'selected':''}>plantão</option></select></div>
+    </div>`;
+}
+
+function renderTabExames(l){
+  const all=allExamesList();
+  // Exames com valor preenchido
+  const preenchidos=all.filter(e=>l.exames&&l.exames[e.key]);
+  // Chips rápidos — exames não preenchidos ainda
+  const vazios=EXAMES_PADRAO.filter(e=>!l.exames||!l.exames[e.key]).slice(0,16);
+
+  const rows=preenchidos.map(e=>{
+    const v=l.exames[e.key]||'';
+    const flag=examFlag(e.key,v);
+    const dotColor=flag==='low'?'var(--blue)':flag==='high'?'var(--red-text)':'var(--green)';
+    return`<div class="exam-item">
+      <span class="exam-name">${e.name}${e.unit?` <span style="font-size:10px;opacity:.5">${e.unit}</span>`:''}</span>
+      <div class="exam-val"><input type="text" inputmode="decimal" value="${v}" oninput="setExame('${e.key}',this.value)" placeholder="—"></div>
+      ${v?`<div class="exam-flag" style="background:${dotColor}"></div>`:''}
+      <button class="btn-icon" onclick="setExame('${e.key}','');render()" style="font-size:12px">×</button>
+    </div>`;
+  }).join('');
+
+  // Custom exames do leito
+  const customRows=(l.customExames||[]).map((e,i)=>`
+    <div class="exam-item">
+      <input type="text" style="flex:1;min-width:80px;font-size:12px;background:transparent;border:none;outline:none;color:var(--text2)" placeholder="Nome exame" value="${e.nome||''}" oninput="L().customExames[${i}].nome=this.value;persist()">
+      <input type="text" style="width:80px;font-size:13px;font-family:var(--mono);background:transparent;border:none;outline:none;color:var(--text);text-align:right" placeholder="resultado" value="${e.valor||''}" oninput="L().customExames[${i}].valor=this.value;learnExame(e.nome);persist()">
+      <button class="btn-icon" onclick="L().customExames.splice(${i},1);persist();render()" style="font-size:12px">×</button>
+    </div>`).join('');
+
+  const chips=vazios.map(e=>`<span class="echip" onclick="addExame('${e.key}')">${e.name}</span>`).join('');
+
+  return`
+    <div class="section-label">Adicionar exame rápido</div>
+    <div class="chip-row">${chips}</div>
+    ${rows}
+    ${customRows}
+    <button class="btn btn-sm btn-full" style="margin-top:6px" onclick="addCustomExame()">+ Exame personalizado</button>`;
+}
+
+function setExame(key,val){
+  if(!L().exames)L().exames={};
+  L().exames[key]=val;
+  persist();
+  // re-render inline without full render to preserve focus
+  render();
+}
+
+function addExame(key){
+  if(!L().exames)L().exames={};
+  L().exames[key]=L().exames[key]||'';
+  persist();render();
+}
+
+function addCustomExame(){
+  if(!L().customExames)L().customExames=[];
+  L().customExames.push({nome:'',valor:'',unit:''});
+  persist();render();
+}
+
+function learnExame(nome){
+  if(!nome||!nome.trim())return;
+  if(!S.learnedExames.includes(nome.trim()))S.learnedExames.push(nome.trim());
+}
+
+function renderTabPendencias(l){
+  const rows=(l.pendencias||[]).map((p,i)=>`
+    <div class="pend-item" style="${p.feito?'opacity:.5':''}">
+      <div class="pend-done${p.feito?' done':''}" onclick="L().pendencias[${i}].feito=!L().pendencias[${i}].feito;persist();render()">
+        ${p.feito?'✓':''}
+      </div>
+      <textarea class="pend-text" rows="1" style="${p.feito?'text-decoration:line-through;color:var(--text3)':''}" oninput="L().pendencias[${i}].texto=this.value;persist()" placeholder="Pendência...">${p.texto||''}</textarea>
+      <button class="btn-icon" onclick="L().pendencias.splice(${i},1);persist();render()">×</button>
+    </div>`).join('');
+
+  return`
+    <div class="section-label">Pendências</div>
+    ${rows}
+    <button class="btn btn-sm" style="margin-bottom:12px" onclick="L().pendencias=L().pendencias||[];L().pendencias.push({texto:'',feito:false});persist();render()">+ Pendência</button>
+
+    <hr class="divider">
+    <div class="section-label">Condutas realizadas / planejadas</div>
+    <div class="field">
+      <textarea placeholder="• Iniciou ATB empírico&#10;• Colheu HMC x2&#10;• Programar TC tórax amanhã" oninput="L().condutas=this.value;persist()" style="min-height:90px">${l.condutas||''}</textarea>
+    </div>
+
+    <hr class="divider">
+    <div class="section-label">Observações livres</div>
+    <div class="field">
+      <textarea placeholder="Informações adicionais, família, contexto..." oninput="L().obs=this.value;persist()" style="min-height:70px">${l.obs||''}</textarea>
+    </div>`;
+}
+
+// ── PASSAGEM ───────────────────────────────────────────────────────────────
+function renderPassagem(){
+  const txt=gerarTexto();
+  const ocp=S.leitos.filter(l=>l.ocupado).length;
+  const pendTotal=S.leitos.reduce((a,l)=>a+(l.pendencias||[]).filter(p=>p.texto&&!p.feito).length,0);
+
+  return`
+    <div class="card" style="margin-bottom:10px">
+      <div class="section-label">Resumo do plantão</div>
+      <div class="grid3">
+        <div style="text-align:center;padding:.5rem"><div style="font-size:22px;font-weight:600;font-family:var(--mono)">${ocp}</div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">leitos</div></div>
+        <div style="text-align:center;padding:.5rem"><div style="font-size:22px;font-weight:600;font-family:var(--mono);color:${pendTotal>0?'var(--amber-text)':'var(--green-text)'}">${pendTotal}</div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">pendências</div></div>
+        <div style="text-align:center;padding:.5rem"><div style="font-size:22px;font-weight:600;font-family:var(--mono)">${S.leitos.filter(l=>l.vm).length}</div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">em VM</div></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:10px">
+      <div class="section-label">Texto para WhatsApp</div>
+      <div class="wa-output" id="waText">${txt}</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-green btn-sm" style="flex:1" onclick="copiarTexto()">📋 Copiar texto</button>
+        <button class="btn btn-sm" onclick="render()">↺ Atualizar</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-label">Pendências abertas</div>
+      ${S.leitos.filter(l=>l.ocupado&&l.pendencias?.some(p=>p.texto&&!p.feito)).map(l=>`
+        <div style="margin-bottom:10px">
+          <div style="font-size:11px;font-weight:500;color:var(--accent-text);margin-bottom:4px">Leito ${l.num} — ${l.nome||'Paciente'}</div>
+          ${l.pendencias.filter(p=>p.texto&&!p.feito).map(p=>`<div style="font-size:12px;color:var(--amber-text);padding:3px 0">🔴 ${p.texto}</div>`).join('')}
+        </div>`).join('')||`<div style="font-size:12px;color:var(--green-text)">✅ Nenhuma pendência aberta</div>`}
+    </div>`;
+}
+
+function copiarTexto(){
+  const txt=document.getElementById('waText')?.textContent||gerarTexto();
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(txt).then(()=>toast('✓ Copiado para a área de transferência')).catch(()=>fallbackCopy(txt));
+  } else fallbackCopy(txt);
+}
+function fallbackCopy(txt){
+  const ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);toast('✓ Copiado');
+}
+
+function updateHeader(){render();}
+
+// ── CONFIG ─────────────────────────────────────────────────────────────────
+function renderConfig(){
+  const turnoOpts=['Manhã','Tarde','Noite','12h','24h'].map(t=>`<option ${S.plantaoTurno===t?'selected':''}>${t}</option>`).join('');
+  const learned=S.learnedExames;
+
+  return`
+    <div class="card">
+      <div class="section-label">Dados do plantão</div>
+      <div class="field"><label>Médico responsável</label><input type="text" placeholder="Seu nome" value="${S.medicoNome||''}" oninput="S.medicoNome=this.value;persist()"></div>
+      <div class="field"><label>Turno</label><select onchange="S.plantaoTurno=this.value;persist()">${turnoOpts}</select></div>
+    </div>
+
+    <div class="card">
+      <div class="section-label">Exames aprendidos</div>
+      <div class="info-bar">Exames personalizados que você adicionou ficam disponíveis em todos os leitos.</div>
+      ${learned.length===0?`<div style="font-size:12px;color:var(--text3)">Nenhum exame personalizado ainda.</div>`:''}
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px">
+        ${learned.map((e,i)=>`<div style="display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border:.5px solid var(--border2);border-radius:20px;font-size:11px;color:var(--text2)">
+          ${e}<button style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;padding:0 0 0 4px" onclick="S.learnedExames.splice(${i},1);persist();render()">×</button>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-label">Novo plantão</div>
+      <div class="info-bar">Limpa todos os leitos e inicia um novo plantão. Os exames aprendidos e configurações são mantidos.</div>
+      <button class="btn btn-danger btn-sm" onclick="novoPlantao()">🔄 Iniciar novo plantão</button>
+    </div>
+
+    <div class="card">
+      <div class="section-label">Backup</div>
+      <div class="info-bar">Exporta todos os dados do plantão atual em JSON.</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary btn-sm" style="flex:1" onclick="exportData()">Exportar JSON</button>
+        <label class="btn btn-sm" style="flex:1;cursor:pointer">Importar JSON<input type="file" accept=".json" style="display:none" onchange="importData(event)"></label>
+      </div>
+    </div>
+
+    <div class="card pwa-hide">
+      <div class="section-label">Instalar como app</div>
+      <div class="info-bar"><strong>iPhone:</strong> Safari → Compartilhar → Adicionar à Tela de Início<br><strong>Android:</strong> Chrome → Menu → Adicionar à tela inicial</div>
+    </div>`;
+}
+
+function novoPlantao(){
+  if(!confirm('Iniciar novo plantão?\n\nTodos os dados dos leitos serão apagados. Exames aprendidos e configurações serão mantidos.'))return;
+  S.leitos=[1,2,3,4].map(n=>emptyLeito(n));
+  persist();toast('Novo plantão iniciado');render();
+}
+
+function exportData(){
+  const blob=new Blob([JSON.stringify({leitos:S.leitos,learnedExames:S.learnedExames,medicoNome:S.medicoNome,plantaoTurno:S.plantaoTurno,exportDate:new Date().toISOString()},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`uti_plantao_${new Date().toISOString().split('T')[0]}.json`;a.click();
+  toast('Backup exportado');
+}
+function importData(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();r.onload=ev=>{
+    try{const d=JSON.parse(ev.target.result);
+      if(d.leitos)S.leitos=d.leitos.map((l,i)=>({...emptyLeito(i+1),...l}));
+      if(d.learnedExames)S.learnedExames=d.learnedExames;
+      if(d.medicoNome)S.medicoNome=d.medicoNome;
+      if(d.plantaoTurno)S.plantaoTurno=d.plantaoTurno;
+      persist();toast('✓ Importado');render();
+    }catch{alert('Arquivo inválido.');}
+  };r.readAsText(f);e.target.value='';
+}
+
+// ── PWA ────────────────────────────────────────────────────────────────────
+function injectManifest(){
+  const m={name:'UTI Plantão',short_name:'UTI Plantão',start_url:'.',display:'standalone',background_color:'#07090f',theme_color:'#07090f',
+    icons:[{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%2307090f'/%3E%3Crect x='56' y='40' width='80' height='112' rx='8' fill='%234f6fff' opacity='.2'/%3E%3Crect x='72' y='60' width='48' height='6' rx='3' fill='%234f6fff'/%3E%3Crect x='72' y='76' width='36' height='4' rx='2' fill='%234f6fff' opacity='.6'/%3E%3Crect x='72' y='90' width='42' height='4' rx='2' fill='%234f6fff' opacity='.6'/%3E%3Crect x='72' y='104' width='30' height='4' rx='2' fill='%234f6fff' opacity='.4'/%3E%3C/svg%3E",sizes:'192x192',type:'image/svg+xml'}]};
+  const l=document.createElement('link');l.rel='manifest';l.href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/json'}));document.head.appendChild(l);
+}
+function registerSW(){
+  if(!('serviceWorker' in navigator))return;
+  const sw=`const C='uti-cache-v1';self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.add('/')));self.skipWaiting();});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))));});self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>r))));`;
+  navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'}))).catch(()=>{});
+}
+
+loadData();injectManifest();registerSW();render();
+</script>
+</body>
+</html>
