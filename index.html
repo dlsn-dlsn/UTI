@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="UTI Plantão">
+<title>UTI Plantão</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@400;500;600&display=swap');
+:root{
+  --bg:#07090f;--bg2:#0c0f1a;--bg3:#111525;--bg4:#161c2e;
+  --border:rgba(100,130,255,.1);--border2:rgba(100,130,255,.18);
+  --text:#e8eaf6;--text2:#8892b0;--text3:#4a5270;
+  --accent:#4f6fff;--accent2:#3a55e0;
+  --accent-dim:rgba(79,111,255,.12);--accent-dim2:rgba(79,111,255,.06);
+  --accent-border:rgba(79,111,255,.3);--accent-text:#8aabff;
+  --blue:#378ADD;--blue-dim:rgba(55,138,221,.12);--blue-border:rgba(55,138,221,.28);--blue-text:#85B7EB;
+  --green:#1fa86e;--green-dim:rgba(31,168,110,.12);--green-border:rgba(31,168,110,.28);--green-text:#5dcaa5;
+  --amber:#d4900a;--amber-dim:rgba(212,144,10,.12);--amber-border:rgba(212,144,10,.28);--amber-text:#f0b842;
+  --red:#c94040;--red-dim:rgba(201,64,64,.12);--red-border:rgba(201,64,64,.28);--red-text:#f08080;
+  --r:10px;--rs:6px;--mono:'IBM Plex Mono',monospace;--sans:'Syne',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg)}
+body{font-family:var(--sans);color:var(--text);min-height:100dvh}
+#app{max-width:560px;margin:0 auto;padding:0 0 5rem}
+.header{padding:1.25rem 1rem 0;display:flex;align-items:center;justify-content:space-between}
+.header-left{display:flex;align-items:center;gap:10px}
+.logo-dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent)}
+.logo-title{font-size:18px;font-weight:600;letter-spacing:-.02em}
+.logo-sub{font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:1px}
+.logo-ver{font-size:9px;color:var(--accent-text);font-family:var(--mono);margin-top:1px;font-weight:600}
+.date-badge{font-size:11px;color:var(--text3);font-family:var(--mono);background:var(--bg3);border:.5px solid var(--border);padding:4px 10px;border-radius:20px}
+.nav{display:flex;margin:1.25rem 1rem 0;background:var(--bg3);border-radius:var(--r);padding:3px;border:.5px solid var(--border)}
+.nav button{flex:1;padding:7px 4px;border:none;background:transparent;border-radius:8px;font-size:11px;font-weight:500;color:var(--text3);cursor:pointer;transition:all .18s;font-family:var(--sans)}
+.nav button.active{background:var(--bg4);color:var(--text);border:.5px solid var(--border2)}
+.content{padding:1rem}
+.card{background:var(--bg2);border:.5px solid var(--border);border-radius:var(--r);padding:1rem 1.1rem;margin-bottom:10px}
+.card-accent{border-color:var(--accent-border)}
+.section-label{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:8px}
+.divider{border:none;border-top:.5px solid var(--border);margin:.75rem 0}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:11px;color:var(--text3);margin-bottom:4px}
+.field input,.field select,.field textarea{width:100%;padding:8px 10px;border:.5px solid var(--border2);border-radius:var(--rs);background:var(--bg3);color:var(--text);font-size:13px;font-family:var(--sans);appearance:none;-webkit-appearance:none;outline:none;transition:border-color .15s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent)}
+.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a5270' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+.field textarea{resize:vertical;min-height:56px;line-height:1.5}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.btn{padding:8px 14px;border-radius:var(--rs);border:.5px solid var(--border2);background:var(--bg3);color:var(--text);font-size:12px;font-weight:500;cursor:pointer;font-family:var(--sans);transition:all .15s;display:inline-flex;align-items:center;justify-content:center;gap:5px}
+.btn:hover{background:var(--bg4)}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-primary:hover{background:var(--accent2)}
+.btn-danger{background:var(--red-dim);color:var(--red-text);border-color:var(--red-border)}
+.btn-sm{padding:5px 10px;font-size:11px}
+.btn-full{width:100%}
+.btn-icon{padding:3px 7px;background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:14px}
+.btn-icon:hover{color:var(--red-text)}
+.badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:500}
+.badge-green{background:var(--green-dim);border:.5px solid var(--green-border);color:var(--green-text)}
+.badge-amber{background:var(--amber-dim);border:.5px solid var(--amber-border);color:var(--amber-text)}
+.badge-red{background:var(--red-dim);border:.5px solid var(--red-border);color:var(--red-text)}
+.badge-accent{background:var(--accent-dim);border:.5px solid var(--accent-border);color:var(--accent-text)}
+.inner-tabs{display:flex;margin-bottom:12px;background:var(--bg3);border-radius:var(--rs);padding:2px;border:.5px solid var(--border)}
+.inner-tab{flex:1;padding:6px 4px;border:none;background:transparent;border-radius:5px;font-size:11px;font-weight:500;color:var(--text3);cursor:pointer;transition:all .15s;font-family:var(--sans);text-align:center}
+.inner-tab.active{background:var(--bg4);color:var(--text);border:.5px solid var(--border2)}
+.inner-tab.has-data{color:var(--accent-text)}
+.drug-row{display:flex;align-items:center;gap:6px;padding:7px 10px;border:.5px solid var(--border);border-radius:var(--rs);margin-bottom:6px;background:var(--bg3);flex-wrap:wrap}
+.drug-inp{background:transparent;border:none;outline:none;font-family:var(--sans);color:var(--text);font-size:13px;min-width:90px;flex:1}
+.drug-dose{background:transparent;border:none;outline:none;font-family:var(--mono);color:var(--accent-text);font-size:13px;width:65px;text-align:right}
+.drug-unit-sel{font-size:11px;padding:3px 20px 3px 6px;border:.5px solid var(--border2);border-radius:4px;background:var(--bg4);color:var(--text2);font-family:var(--sans);appearance:none;-webkit-appearance:none;outline:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%234a5270' stroke-width='1.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 5px center;cursor:pointer}
+.exam-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border:.5px solid var(--border);border-radius:var(--rs);margin-bottom:5px;background:var(--bg3)}
+.exam-lbl{font-size:12px;color:var(--text2);min-width:100px;flex-shrink:0}
+.exam-inp{flex:1;background:transparent;border:none;outline:none;font-family:var(--mono);font-size:13px;color:var(--text)}
+.exam-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.chip-wrap{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.chip{padding:5px 10px;border:.5px solid var(--border2);border-radius:16px;font-size:11px;color:var(--text2);cursor:pointer;background:var(--bg3);font-family:var(--sans);transition:all .15s}
+.chip:hover,.chip:active{border-color:var(--accent);color:var(--accent-text);background:var(--accent-dim)}
+.vmchip{padding:5px 10px;border:.5px solid var(--border2);border-radius:14px;font-size:11px;color:var(--text2);cursor:pointer;background:var(--bg3);font-family:var(--sans);transition:all .15s}
+.vmchip.on{background:var(--blue-dim);border-color:var(--blue-border);color:var(--blue-text)}
+.leito-nav{display:flex;gap:6px;margin-bottom:12px}
+.leito-btn{flex:1;padding:10px 4px;border:.5px solid var(--border2);border-radius:var(--rs);background:var(--bg3);color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;font-family:var(--sans);text-align:center;transition:all .15s}
+.leito-btn:hover{border-color:var(--accent-border)}
+.leito-btn.active{background:var(--accent-dim);border-color:var(--accent-border);color:var(--accent-text)}
+.leito-btn .dot{display:block;width:5px;height:5px;border-radius:50%;margin:3px auto 0}
+.leito-btn.ocp .dot{background:var(--green)}
+.leito-btn.vaz .dot{background:var(--border2)}
+.leito-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.leito-badge{width:32px;height:32px;border-radius:8px;background:var(--accent-dim);border:.5px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:var(--accent-text);font-family:var(--mono)}
+.pend-item{display:flex;align-items:flex-start;gap:8px;padding:7px 8px;border:.5px solid var(--amber-border);border-radius:var(--rs);margin-bottom:5px;background:var(--amber-dim)}
+.pend-check{width:16px;height:16px;border-radius:4px;border:.5px solid var(--amber-border);background:transparent;cursor:pointer;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--amber-text)}
+.pend-check.done{background:var(--green);border-color:var(--green);color:#fff}
+.pend-inp{flex:1;background:transparent;border:none;outline:none;font-family:var(--sans);color:var(--text);font-size:12px;line-height:1.4;resize:none;min-height:20px}
+/* BIC */
+.bic-result{background:var(--bg3);border:.5px solid var(--accent-border);border-radius:var(--r);padding:1.25rem;text-align:center;margin-top:4px}
+.bic-big{font-size:42px;font-weight:700;font-family:var(--mono);color:var(--accent-text);line-height:1}
+.bic-unit{font-size:18px;color:var(--text2);font-family:var(--mono);margin-top:2px}
+.bic-sub{font-size:12px;color:var(--text3);margin-top:10px;padding-top:10px;border-top:.5px solid var(--border);line-height:1.6}
+input[type=range]{width:100%;height:4px;border-radius:2px;appearance:none;-webkit-appearance:none;background:var(--border2);outline:none;cursor:pointer;margin:4px 0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--accent);cursor:pointer;border:2px solid var(--bg)}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--accent);cursor:pointer;border:2px solid var(--bg)}
+.wa-box{background:var(--bg3);border:.5px solid var(--green-border);border-radius:var(--r);padding:1rem;font-family:var(--mono);font-size:11.5px;line-height:1.7;color:var(--text);white-space:pre-wrap;word-break:break-word;max-height:55vh;overflow-y:auto;margin-bottom:10px}
+.wa-box::-webkit-scrollbar{width:3px}
+.wa-box::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.toast{position:fixed;bottom:5.5rem;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;padding:8px 20px;border-radius:20px;font-size:13px;font-weight:500;z-index:100;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+.empty{text-align:center;padding:2rem 0;color:var(--text3);font-size:13px}
+.info-bar{font-size:11px;color:var(--text3);line-height:1.6;margin-bottom:8px}
+@media(display-mode:standalone){.pwa-hide{display:none}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <div class="header-left">
+      <div class="logo-dot"></div>
+      <div>
+        <div class="logo-title">UTI Plantão</div>
+        <div class="logo-sub" id="hSub">0/4 leitos</div>
+        <div class="logo-ver">v.0.11</div>
+      </div>
+    </div>
+    <div class="date-badge" id="hDate"></div>
+  </div>
+  <nav class="nav">
+    <button onclick="setTab('leitos')"   id="tab-leitos"   class="active">Leitos</button>
+    <button onclick="setTab('bic')"      id="tab-bic">BIC</button>
+    <button onclick="setTab('passagem')" id="tab-passagem">Passagem</button>
+    <button onclick="setTab('config')"   id="tab-config">Config</button>
+  </nav>
+  <div class="content" id="content"></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const VER = 'uti_v11';
+const APP_VER = 'v.0.11';
+
+// ── CONSTANTS ──────────────────────────────────────────────────────────────
+const VM_MODOS = ['VCV','PCV','PSV','CPAP','SIMV','APRV','BiPAP','VNI'];
+const SED_ESCALAS = ['RASS','Ramsay','BPS','NRS','EVA'];
+const DISP_O2 = ['Cateter Nasal (CN)','CNAlto Fluxo (CNAF)','Máscara Venturi','Máscara Não-reinalante (MNR)','Macronebulização','Nebulização contínua','Ar ambiente','Hood/Tenda O₂'];
+const VIAS_AEREAS = ['Nativa','TOT','TQT','Máscara Laríngea','Guedel'];
+const VASOATIVAS_LIST = [
+  {nome:'Noradrenalina',unit:'mcg/kg/min'},
+  {nome:'Adrenalina',   unit:'mcg/kg/min'},
+  {nome:'Vasopressina', unit:'UI/h'},
+  {nome:'Dobutamina',   unit:'mcg/kg/min'},
+  {nome:'Dopamina',     unit:'mcg/kg/min'},
+  {nome:'Milrinona',    unit:'mcg/kg/min'},
+  {nome:'Fenilefrina',  unit:'mcg/kg/min'},
+  {nome:'Terlipressina',unit:'mg/h'},
+];
+const DVA_UNITS = ['mcg/kg/min','mcg/min','mcg/h','mg/h','ml/h','UI/min','UI/h','ng/kg/min','mcg/kg/h'];
+const SED_LIST = [
+  {nome:'Midazolam',       unit:'mg/h'},
+  {nome:'Propofol',        unit:'mcg/kg/min'},
+  {nome:'Fentanil',        unit:'mcg/kg/h'},
+  {nome:'Sufentanil',      unit:'mcg/kg/h'},
+  {nome:'Remifentanil',    unit:'mcg/kg/min'},
+  {nome:'Ketamina',        unit:'mg/kg/h'},
+  {nome:'Dexmedetomidina', unit:'mcg/kg/h'},
+  {nome:'Morfina',         unit:'mg/h'},
+  {nome:'Haloperidol',     unit:'mg/h'},
+  {nome:'Clonidina',       unit:'mcg/h'},
+];
+const SED_UNITS = ['mcg/kg/h','mcg/kg/min','mg/kg/h','mg/h','ml/h','mcg/h','UI/h'];
+const EXAMES_PADRAO = [
+  {key:'hb',    name:'Hb',            unit:'g/dL',  low:7,   high:18},
+  {key:'ht',    name:'Ht',            unit:'%',     low:21,  high:54},
+  {key:'leuco', name:'Leucócitos',    unit:'k/µL',  low:4,   high:12},
+  {key:'plaq',  name:'Plaquetas',     unit:'k/µL',  low:100, high:400},
+  {key:'na',    name:'Na⁺',           unit:'mEq/L', low:136, high:145},
+  {key:'k',     name:'K⁺',            unit:'mEq/L', low:3.5, high:5.0},
+  {key:'ur',    name:'Ureia',         unit:'mg/dL', low:0,   high:50},
+  {key:'cr',    name:'Creatinina',    unit:'mg/dL', low:0,   high:1.2},
+  {key:'gli',   name:'Glicemia',      unit:'mg/dL', low:70,  high:180},
+  {key:'ph',    name:'pH',            unit:'',      low:7.35,high:7.45},
+  {key:'pco2',  name:'pCO2',          unit:'mmHg',  low:35,  high:45},
+  {key:'po2',   name:'pO2',           unit:'mmHg',  low:80,  high:100},
+  {key:'bic',   name:'HCO3⁻',         unit:'mEq/L', low:22,  high:26},
+  {key:'be',    name:'BE',            unit:'mEq/L', low:-2,  high:2},
+  {key:'lac',   name:'Lactato',       unit:'mmol/L',low:0,   high:2},
+  {key:'pcr',   name:'PCR',           unit:'mg/L',  low:0,   high:10},
+  {key:'pct',   name:'Procalcitonina',unit:'ng/mL', low:0,   high:0.5},
+  {key:'alt',   name:'ALT',           unit:'U/L',   low:0,   high:40},
+  {key:'ast',   name:'AST',           unit:'U/L',   low:0,   high:40},
+  {key:'bt',    name:'BT',            unit:'mg/dL', low:0,   high:1.2},
+  {key:'tni',   name:'TnI',           unit:'ng/mL', low:0,   high:0.04},
+  {key:'bnp',   name:'BNP',           unit:'pg/mL', low:0,   high:100},
+  {key:'rni',   name:'RNI',           unit:'',      low:0.8, high:1.2},
+  {key:'ttpa',  name:'TTPa',          unit:'s',     low:25,  high:35},
+  {key:'fibri', name:'Fibrinogênio',  unit:'mg/dL', low:200, high:400},
+  {key:'alb',   name:'Albumina',      unit:'g/dL',  low:3.5, high:5},
+  {key:'mg',    name:'Magnésio',      unit:'mg/dL', low:1.7, high:2.2},
+  {key:'ca',    name:'Cálcio',        unit:'mg/dL', low:8.5, high:10.5},
+  {key:'fosf',  name:'Fósforo',       unit:'mg/dL', low:2.5, high:4.5},
+];
+
+// ── BIC CATALOGUE ──────────────────────────────────────────────────────────
+// concDef: drug amount in volume; concVol: volume in ml; concIsMcg: true if unit is mcg
+const BIC = [
+  // Vasoativas
+  {nome:'Noradrenalina',  cat:'Vasoativa',     concDef:4,    concVol:50,  concIsMcg:false, doseUnit:'mcg/kg/min', min:0.01, max:3,    step:0.01, nota:'4mg/50ml SG5%. Faixa usual 0.01–0.5 mcg/kg/min.'},
+  {nome:'Adrenalina',     cat:'Vasoativa',     concDef:2,    concVol:50,  concIsMcg:false, doseUnit:'mcg/kg/min', min:0.01, max:1,    step:0.01, nota:'2mg/50ml SG5%. Parada: EV direto bolus.'},
+  {nome:'Vasopressina',   cat:'Vasoativa',     concDef:20,   concVol:50,  concIsMcg:false, doseUnit:'UI/h',       min:0.01, max:0.06, step:0.005,nota:'20 UI/50ml SF. Dose fixa independe do peso.'},
+  {nome:'Dobutamina',     cat:'Vasoativa',     concDef:250,  concVol:50,  concIsMcg:false, doseUnit:'mcg/kg/min', min:2.5,  max:20,   step:0.5,  nota:'250mg/50ml SG5%.'},
+  {nome:'Dopamina',       cat:'Vasoativa',     concDef:200,  concVol:50,  concIsMcg:false, doseUnit:'mcg/kg/min', min:2,    max:20,   step:0.5,  nota:'Renal: 2–5 · Inotrópica: 5–10 · Vasopressora: >10.'},
+  {nome:'Milrinona',      cat:'Vasoativa',     concDef:10,   concVol:50,  concIsMcg:false, doseUnit:'mcg/kg/min', min:0.25, max:0.75, step:0.05, nota:'10mg/50ml SF. Ataque 50mcg/kg em 10min (opc.).'},
+  {nome:'Fenilefrina',    cat:'Vasoativa',     concDef:10,   concVol:50,  concIsMcg:false, doseUnit:'mcg/kg/min', min:0.1,  max:5,    step:0.1,  nota:'Puro alfa-1. Usar com cuidado em IC.'},
+  {nome:'Nitroglicerina', cat:'Vasoativa',     concDef:25,   concVol:50,  concIsMcg:false, doseUnit:'mcg/min',    min:5,    max:400,  step:5,    nota:'Não por peso. Equipo especial anti-adsorvente.'},
+  {nome:'Nitroprussiato', cat:'Vasoativa',     concDef:50,   concVol:250, concIsMcg:false, doseUnit:'mcg/kg/min', min:0.1,  max:10,   step:0.1,  nota:'Proteger da luz. Monitorar tiocianato >48h.'},
+  {nome:'Terlipressina',  cat:'Vasoativa',     concDef:1,    concVol:50,  concIsMcg:false, doseUnit:'mg/h',       min:1,    max:4,    step:0.5,  nota:'1–4 mg/h. Alternativa à Vasopressina.'},
+  // Sedoanalgesia
+  {nome:'Fentanil',       cat:'Sedoanalgesia', concDef:1000, concVol:50,  concIsMcg:true,  doseUnit:'mcg/kg/h',   min:0.5,  max:10,   step:0.5,  nota:'1000mcg/50ml SF. RASS alvo -2 a 0.'},
+  {nome:'Midazolam',      cat:'Sedoanalgesia', concDef:15,   concVol:50,  concIsMcg:false, doseUnit:'mg/h',       min:1,    max:15,   step:0.5,  nota:'15mg/50ml SF. RASS alvo -2 a -3.'},
+  {nome:'Propofol',       cat:'Sedoanalgesia', concDef:500,  concVol:50,  concIsMcg:false, doseUnit:'mcg/kg/min', min:5,    max:80,   step:5,    nota:'10mg/ml puro. Monitorar PRIS se >48h ou >5mg/kg/h.'},
+  {nome:'Ketamina',       cat:'Sedoanalgesia', concDef:500,  concVol:50,  concIsMcg:false, doseUnit:'mg/kg/h',    min:0.1,  max:2,    step:0.1,  nota:'500mg/50ml SF. Broncodilatador. Preserva drive resp.'},
+  {nome:'Dexmedetomidina',cat:'Sedoanalgesia', concDef:200,  concVol:50,  concIsMcg:true,  doseUnit:'mcg/kg/h',   min:0.2,  max:1.5,  step:0.1,  nota:'200mcg/50ml SF. Sem depressão respiratória.'},
+  {nome:'Morfina',        cat:'Sedoanalgesia', concDef:20,   concVol:50,  concIsMcg:false, doseUnit:'mg/h',       min:1,    max:10,   step:0.5,  nota:'20mg/50ml SF. Atenção: histamina, hipotensão.'},
+  {nome:'Remifentanil',   cat:'Sedoanalgesia', concDef:2,    concVol:50,  concIsMcg:false, doseUnit:'mcg/kg/min', min:0.05, max:0.5,  step:0.05, nota:'2mg/50ml SF. Titular dose. Offset rápido.'},
+  // Outros
+  {nome:'Insulina Regular',cat:'Outros',       concDef:100,  concVol:100, concIsMcg:false, doseUnit:'UI/h',       min:0.5,  max:10,   step:0.5,  nota:'100UI/100ml SF (1UI/ml). Alvo glicemia 140–180.'},
+  {nome:'Heparina',       cat:'Outros',        concDef:25000,concVol:250, concIsMcg:false, doseUnit:'UI/h',       min:500,  max:3000, step:100,  nota:'100UI/ml. Ajustar por TTPa ratio 1.5–2.5.'},
+  {nome:'Amiodarona',     cat:'Outros',        concDef:450,  concVol:250, concIsMcg:false, doseUnit:'mg/h',       min:15,   max:60,   step:5,    nota:'Manutenção 15mg/h. Diluir SG5%. Frasco de vidro.'},
+];
+
+// ── STATE ──────────────────────────────────────────────────────────────────
+function emptyLeito(n){
+  return{
+    num:n, ocupado:false,
+    nome:'', idade:'', peso:'', sexo:'M', hd:'', tab:'dados',
+    // respiração
+    respMode:'espontanea',
+    respDisp:'Cateter Nasal (CN)', respVia:'Nativa',
+    respFr:'', respFio2:'', respSpo2:'',
+    // VM invasiva
+    vmModo:'VCV', vmFio2:'', vmPeep:'', vmVt:'', vmFr:'', vmPip:'', vmSpo2:'',
+    // drogas
+    vasoativas:[], sedDrogas:[],
+    sedEscala:'RASS', sedScore:'',
+    // balanço
+    diurese:'', balanco:'', balPeriodo:'24h',
+    // exames
+    exames:{}, customExames:[],
+    // pendências
+    pendencias:[], condutas:'', obs:'',
+  };
+}
+
+let S = {
+  leitos: [1,2,3,4].map(emptyLeito),
+  ci: 0,
+  tab: 'leitos',
+  learnedExames: [],
+  medicoNome: '',
+  plantaoTurno: 'Manhã',
+  // BIC state
+  bicCat: 'Vasoativa',
+  bicDrug: 'Noradrenalina',
+  bicPeso: '',
+  bicDose: '',
+  bicSlider: 30,
+  bicConcOverride: '',
+};
+
+// ── PERSIST ────────────────────────────────────────────────────────────────
+function persist(){
+  try{
+    localStorage.setItem(VER, JSON.stringify({
+      leitos:S.leitos, learnedExames:S.learnedExames,
+      medicoNome:S.medicoNome, plantaoTurno:S.plantaoTurno,
+    }));
+  }catch(e){}
+}
+function loadData(){
+  try{
+    const d = JSON.parse(localStorage.getItem(VER)||'null');
+    if(!d) return;
+    if(d.leitos) S.leitos = d.leitos.map((l,i)=>({...emptyLeito(i+1),...l}));
+    if(d.learnedExames) S.learnedExames = d.learnedExames;
+    if(d.medicoNome) S.medicoNome = d.medicoNome;
+    if(d.plantaoTurno) S.plantaoTurno = d.plantaoTurno;
+  }catch(e){}
+}
+
+// ── HELPERS ────────────────────────────────────────────────────────────────
+const CL = () => S.leitos[S.ci];
+function toast(msg,dur=2200){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),dur); }
+function esc(s){ if(!s&&s!==0) return ''; return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function examFlag(key,val){ const e=EXAMES_PADRAO.find(x=>x.key===key); if(!e||!val) return ''; const v=parseFloat(val); if(isNaN(v)) return ''; if(v<e.low) return 'low'; if(v>e.high) return 'high'; return 'ok'; }
+function allExamesList(){ return [...EXAMES_PADRAO, ...S.learnedExames.map(n=>({key:'cx_'+n.replace(/\W/g,'_'),name:n,unit:'',low:null,high:null}))]; }
+function fmtB(v){ if(!v&&v!==0) return '—'; const n=parseFloat(v); if(isNaN(n)) return '—'; if(n>=100) return n.toFixed(1); if(n>=10) return n.toFixed(2); if(n>=1) return n.toFixed(2); return n.toFixed(3); }
+
+// ── BIC CALCULATION ────────────────────────────────────────────────────────
+function calcBIC(drug, pesoKg, doseVal){
+  if(!drug||!pesoKg||!doseVal) return null;
+  const p = parseFloat(pesoKg);
+  const d = parseFloat(doseVal);
+  if(!p||!d||p<=0||d<=0) return null;
+
+  const concPerMl = drug.concDef / drug.concVol; // mg/ml or mcg/ml or UI/ml
+  const concMgPerMl = drug.concIsMcg ? concPerMl/1000 : concPerMl;
+  const concMcgPerMl = drug.concIsMcg ? concPerMl : concPerMl*1000;
+  const concUiPerMl = concPerMl; // for UI drugs
+
+  let mlH = null;
+  switch(drug.doseUnit){
+    case 'mcg/kg/min': mlH = (d * p * 60) / concMcgPerMl; break;
+    case 'mcg/kg/h':   mlH = (d * p) / concMcgPerMl; break;
+    case 'mcg/min':    mlH = (d * 60) / concMcgPerMl; break;
+    case 'mg/kg/h':    mlH = (d * p) / concMgPerMl; break;
+    case 'mg/h':       mlH = d / concMgPerMl; break;
+    case 'UI/h':       mlH = d / concUiPerMl; break;
+    default: mlH = null;
+  }
+  if(!mlH||mlH<=0) return null;
+  return parseFloat(mlH.toFixed(2));
+}
+
+function doseFromSlider(drug, pct){
+  return parseFloat((drug.min + (drug.max - drug.min) * pct/100).toFixed(6));
+}
+function sliderFromDose(drug, dose){
+  return Math.max(0, Math.min(100, Math.round((dose - drug.min)/(drug.max - drug.min)*100)));
+}
+
+// ── TAB/LEITO NAV ──────────────────────────────────────────────────────────
+function setTab(t){
+  S.tab=t;
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  render();
+}
+function setLeito(i){ S.ci=i; render(); }
+function setLeitoTab(t){ CL().tab=t; render(); }
+
+// ── LEITO ACTIONS ──────────────────────────────────────────────────────────
+function admitir(i){ S.leitos[i].ocupado=true; persist(); render(); }
+function liberar(i){ if(!confirm('Liberar leito '+S.leitos[i].num+'?')) return; const n=S.leitos[i].num; S.leitos[i]=emptyLeito(n); persist(); render(); }
+
+function addDVA(nome,unit){ const l=CL(); if(!l.vasoativas) l.vasoativas=[]; l.vasoativas.push({nome,dose:'',unit:unit||'mcg/kg/min'}); persist(); render(); setTimeout(()=>{ const els=document.querySelectorAll('.dva-dose'); if(els.length) els[els.length-1].focus(); },60); }
+function removeDVA(i){ CL().vasoativas.splice(i,1); persist(); render(); }
+function addSed(nome,unit){ const l=CL(); if(!l.sedDrogas) l.sedDrogas=[]; l.sedDrogas.push({nome,dose:'',unit:unit||'mcg/kg/h'}); persist(); render(); setTimeout(()=>{ const els=document.querySelectorAll('.sed-dose'); if(els.length) els[els.length-1].focus(); },60); }
+function removeSed(i){ CL().sedDrogas.splice(i,1); persist(); render(); }
+
+function addExame(key){ const l=CL(); if(!l.exames) l.exames={}; if(!(key in l.exames)) l.exames[key]=''; persist(); render(); setTimeout(()=>{ const el=document.getElementById('ex_'+key); if(el) el.focus(); },60); }
+function setExame(key,val){ if(!CL().exames) CL().exames={}; CL().exames[key]=val; persist(); }
+function removeExame(key){ if(CL().exames) delete CL().exames[key]; persist(); render(); }
+function addCustomExame(){ if(!CL().customExames) CL().customExames=[]; CL().customExames.push({nome:'',valor:'',unit:''}); persist(); render(); setTimeout(()=>{ const els=document.querySelectorAll('.cex-nome'); if(els.length) els[els.length-1].focus(); },60); }
+function learnExame(nome){ if(!nome||!nome.trim()) return; if(!S.learnedExames.includes(nome.trim())) S.learnedExames.push(nome.trim()); }
+
+function addPendencia(){ if(!CL().pendencias) CL().pendencias=[]; CL().pendencias.push({texto:'',feito:false}); persist(); render(); setTimeout(()=>{ const els=document.querySelectorAll('.pend-inp'); if(els.length) els[els.length-1].focus(); },60); }
+function togglePend(i){ CL().pendencias[i].feito=!CL().pendencias[i].feito; persist(); render(); }
+function removePend(i){ CL().pendencias.splice(i,1); persist(); render(); }
+
+// ── WHATSAPP TEXT ──────────────────────────────────────────────────────────
+function gerarTexto(){
+  const agora = new Date();
+  const hora  = agora.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  const data  = agora.toLocaleDateString('pt-BR');
+  let t = '';
+  t += '╔══════════════════════╗\n';
+  t += '║  🏥 UTI — PASSAGEM   ║\n';
+  t += '╚══════════════════════╝\n';
+  t += '📅 ' + data + '  ⏰ ' + hora + '\n';
+  t += '🔄 Turno: ' + S.plantaoTurno + '\n';
+  if(S.medicoNome) t += '👨‍⚕️ Dr(a). ' + S.medicoNome + '\n';
+  t += '\n';
+
+  const ocp = S.leitos.filter(l=>l.ocupado);
+  if(!ocp.length){ t += 'Nenhum leito ocupado.\n'; return t; }
+
+  ocp.forEach((l,idx)=>{
+    t += '┌─────────────────────┐\n';
+    t += '│ LEITO ' + l.num + (l.nome ? ' — ' + l.nome.toUpperCase() : '') + '\n';
+    t += '└─────────────────────┘\n';
+    const sx = l.sexo==='M'?'♂':'♀';
+    const parts = [sx, l.idade?(l.idade+'a'):'', l.peso?(l.peso+'kg'):''].filter(Boolean);
+    if(parts.length) t += parts.join(' · ') + '\n';
+    if(l.hd) t += '📋 HD: ' + l.hd + '\n';
+
+    // Respiração
+    if((l.respMode||'espontanea')==='espontanea'){
+      t += '\n🫁 Resp: Espontânea';
+      if(l.respVia && l.respVia!=='Nativa') t += ' · via ' + l.respVia;
+      if(l.respDisp && l.respDisp!=='Ar ambiente') t += '\n   Disp: ' + l.respDisp;
+      if(l.respFio2) t += '\n   FiO2/Fluxo: ' + l.respFio2;
+      if(l.respFr)   t += '\n   FR: ' + l.respFr + ' irpm';
+      if(l.respSpo2) t += '\n   SpO2: ' + l.respSpo2 + '%';
+      t += '\n';
+    } else {
+      t += '\n🫁 VM: ' + (l.vmModo||'—');
+      if(l.vmFio2)  t += ' · FiO2 ' + l.vmFio2 + '%';
+      if(l.vmPeep)  t += ' · PEEP ' + l.vmPeep;
+      if(l.vmVt)    t += ' · VT '   + l.vmVt;
+      if(l.vmFr)    t += ' · FR '   + l.vmFr;
+      if(l.vmPip)   t += ' · PIP '  + l.vmPip;
+      if(l.vmSpo2)  t += ' · SpO2 ' + l.vmSpo2 + '%';
+      t += '\n';
+    }
+
+    // Vasoativas
+    const vaso = (l.vasoativas||[]).filter(v=>v.nome);
+    if(vaso.length){
+      t += '\n💊 Vasoativas:\n';
+      vaso.forEach(v=> t += '  • ' + v.nome + (v.dose?' '+v.dose:'') + (v.unit?' '+v.unit:'') + '\n');
+    }
+
+    // Sedação
+    if(l.sedScore || (l.sedDrogas||[]).some(v=>v.nome)){
+      t += '\n😴 Sedação: ' + (l.sedEscala||'') + ' ' + (l.sedScore||'—') + '\n';
+      (l.sedDrogas||[]).filter(v=>v.nome).forEach(v=> t += '  • ' + v.nome + (v.dose?' '+v.dose:'') + (v.unit?' '+v.unit:'') + '\n');
+    }
+
+    // Balanço
+    if(l.diurese||l.balanco){
+      t += '\n💧 Balanço (' + (l.balPeriodo||'24h') + '):';
+      if(l.diurese) t += ' Diurese ' + l.diurese + 'mL';
+      if(l.balanco) t += ' · BH ' + l.balanco + 'mL';
+      t += '\n';
+    }
+
+    // Exames
+    const exArr = Object.entries(l.exames||{}).filter(([k,v])=>v&&v!=='');
+    const cusArr = (l.customExames||[]).filter(e=>e.valor);
+    if(exArr.length||cusArr.length){
+      t += '\n🧪 Exames:\n';
+      exArr.forEach(([k,v])=>{
+        const def = EXAMES_PADRAO.find(e=>e.key===k);
+        const fl  = examFlag(k,v);
+        const ic  = fl==='low'?'⬇️':fl==='high'?'⬆️':'·';
+        t += '  ' + ic + ' ' + (def?def.name:k) + ': ' + v + (def&&def.unit?' '+def.unit:'') + '\n';
+      });
+      cusArr.forEach(e=> t += '  · ' + e.nome + ': ' + e.valor + (e.unit?' '+e.unit:'') + '\n');
+    }
+
+    // Pendências
+    const pends = (l.pendencias||[]).filter(p=>p.texto&&!p.feito);
+    if(pends.length){ t += '\n⚠️ PENDÊNCIAS:\n'; pends.forEach(p=> t += '  🔴 ' + p.texto + '\n'); }
+    if(l.condutas){ t += '\n✅ Condutas:\n'; l.condutas.split('\n').filter(Boolean).forEach(c=> t += '  • ' + c + '\n'); }
+    if(l.obs) t += '\n📝 ' + l.obs + '\n';
+    if(idx < ocp.length-1) t += '\n';
+  });
+
+  const totalPend = S.leitos.reduce((a,l)=>a+(l.pendencias||[]).filter(p=>p.texto&&!p.feito).length,0);
+  t += '\n════════════════════════\n';
+  t += '⚠️ Pendências abertas: ' + totalPend + '\n';
+  t += 'ALTUSMED · ' + APP_VER + '\n';
+  t += 'Dr. Davi Lucas Soares Nunes · CRM/PA 16.615\n';
+  t += '👋 Bom plantão!\n';
+  return t;
+}
+
+// ── RENDER ─────────────────────────────────────────────────────────────────
+function render(){
+  const c = document.getElementById('content'); if(!c) return;
+  const agora = new Date();
+  document.getElementById('hDate').textContent = agora.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'});
+  const ocp = S.leitos.filter(l=>l.ocupado).length;
+  document.getElementById('hSub').textContent = ocp+'/4 leitos ocupados';
+  switch(S.tab){
+    case 'leitos':   c.innerHTML = rLeitos();   break;
+    case 'bic':      c.innerHTML = rBIC();      break;
+    case 'passagem': c.innerHTML = rPassagem(); break;
+    case 'config':   c.innerHTML = rConfig();   break;
+  }
+}
+
+// ── LEITOS ─────────────────────────────────────────────────────────────────
+function rLeitos(){
+  const l = CL();
+  const nav = S.leitos.map((lt,i) =>
+    '<button class="leito-btn' + (S.ci===i?' active':'') + (lt.ocupado?' ocp':' vaz') + '" onclick="setLeito('+i+')">'
+    + 'L'+lt.num+'<span class="dot"></span></button>'
+  ).join('');
+
+  if(!l.ocupado){
+    return '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-size:13px;font-weight:500">Selecionar leito</div></div>'
+      + '<div class="leito-nav">'+nav+'</div>'
+      + '<div class="card"><div class="leito-header"><div style="display:flex;align-items:center;gap:8px">'
+      + '<div class="leito-badge" style="background:var(--bg3);border-color:var(--border);color:var(--text3)">'+l.num+'</div>'
+      + '<div style="font-size:14px;color:var(--text3)">Leito vazio</div></div></div>'
+      + '<div class="empty"><button class="btn btn-primary btn-sm" onclick="admitir('+S.ci+')">+ Admitir paciente</button></div></div>';
+  }
+
+  const hd = {
+    dados:     !!(l.nome||l.hd),
+    clinico:   !!((l.respMode==='vm'&&(l.vmFio2||l.vmPeep))||(l.respMode==='espontanea'&&(l.respFio2||l.respFr))||(l.vasoativas||[]).some(v=>v.nome)||(l.sedDrogas||[]).some(v=>v.nome)||l.sedScore),
+    exames:    !!(Object.values(l.exames||{}).some(v=>v&&v!=='')||(l.customExames||[]).some(e=>e.valor)),
+    pendencias:!!((l.pendencias||[]).some(p=>p.texto)||l.condutas||l.obs),
+  };
+  const tabs = ['dados','clinico','exames','pendencias'];
+  const tLbl = {dados:'Dados',clinico:'Clínico',exames:'Exames',pendencias:'Pendências'};
+  const innerTabs = tabs.map(t =>
+    '<button class="inner-tab'+(l.tab===t?' active':'')+(hd[t]?' has-data':'')+'" onclick="setLeitoTab(\''+t+'\')">'+tLbl[t]+'</button>'
+  ).join('');
+
+  let body = '';
+  switch(l.tab){
+    case 'dados':     body = rDados(l);      break;
+    case 'clinico':   body = rClinico(l);    break;
+    case 'exames':    body = rExames(l);     break;
+    case 'pendencias':body = rPendencias(l); break;
+  }
+
+  return '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
+    + '<div style="font-size:13px;font-weight:500">Selecionar leito</div>'
+    + '<button class="btn btn-danger btn-sm" onclick="liberar('+S.ci+')">Alta / Liberar</button></div>'
+    + '<div class="leito-nav">'+nav+'</div>'
+    + '<div class="card card-accent">'
+    + '<div class="leito-header">'
+    + '<div style="display:flex;align-items:center;gap:8px">'
+    + '<div class="leito-badge">'+l.num+'</div>'
+    + '<div><div style="font-size:14px;font-weight:500">'+(l.nome||'Paciente')+'</div>'
+    + '<div style="font-size:11px;color:var(--text3)">'
+    + [l.sexo==='M'?'♂':'♀', l.idade?l.idade+'a':'', l.peso?l.peso+'kg':''].filter(Boolean).join(' · ')
+    + '</div></div></div>'
+    + '<div style="display:flex;align-items:center;gap:5px">'
+    + '<div style="width:7px;height:7px;border-radius:50%;background:var(--green)"></div>'
+    + '<span style="font-size:11px;color:var(--text3)">Ocupado</span></div></div>'
+    + '<div class="inner-tabs">'+innerTabs+'</div>'
+    + body + '</div>';
+}
+
+// ── ABA DADOS ──────────────────────────────────────────────────────────────
+function rDados(l){
+  return '<div class="grid2">'
+    + '<div class="field"><label>Nome / Iniciais</label><input type="text" placeholder="Ex: J.S." value="'+esc(l.nome)+'" oninput="CL().nome=this.value;persist()"></div>'
+    + '<div class="field"><label>Sexo</label><select onchange="CL().sexo=this.value;persist()">'
+    + '<option value="M"'+(l.sexo==='M'?' selected':'')+'>Masculino</option>'
+    + '<option value="F"'+(l.sexo==='F'?' selected':'')+'>Feminino</option>'
+    + '</select></div></div>'
+    + '<div class="grid2">'
+    + '<div class="field"><label>Idade</label><input type="number" inputmode="numeric" placeholder="anos" value="'+esc(l.idade)+'" oninput="CL().idade=this.value;persist()"></div>'
+    + '<div class="field"><label>Peso (kg)</label><input type="number" inputmode="decimal" placeholder="kg" value="'+esc(l.peso)+'" oninput="CL().peso=this.value;persist()"></div>'
+    + '</div>'
+    + '<div class="field"><label>Hipótese diagnóstica / Motivo internação</label>'
+    + '<textarea placeholder="Ex: Sepse foco pulmonar, SDRA, IOT D2..." oninput="CL().hd=this.value;persist()" style="min-height:72px">'+esc(l.hd)+'</textarea></div>';
+}
+
+// ── ABA CLÍNICO ────────────────────────────────────────────────────────────
+function rClinico(l){
+  const rm = l.respMode||'espontanea';
+
+  // Respiração espontânea
+  const dispOpts = DISP_O2.map(d => '<option value="'+d+'"'+(( l.respDisp||'Cateter Nasal (CN)')===d?' selected':'')+'>'+d+'</option>').join('');
+  const viaOpts  = VIAS_AEREAS.map(v => '<option value="'+v+'"'+((l.respVia||'Nativa')===v?' selected':'')+'>'+v+'</option>').join('');
+  const espSection = '<div class="grid2">'
+    + '<div class="field"><label>Dispositivo O₂</label><select onchange="CL().respDisp=this.value;persist()">'+dispOpts+'</select></div>'
+    + '<div class="field"><label>Via aérea</label><select onchange="CL().respVia=this.value;persist()">'+viaOpts+'</select></div>'
+    + '</div>'
+    + '<div class="grid3">'
+    + '<div class="field"><label>FR (irpm)</label><input type="number" inputmode="decimal" placeholder="16" value="'+esc(l.respFr)+'" oninput="CL().respFr=this.value;persist()"></div>'
+    + '<div class="field"><label>FiO2 / L/min</label><input type="text" placeholder="28%/3L" value="'+esc(l.respFio2)+'" oninput="CL().respFio2=this.value;persist()"></div>'
+    + '<div class="field"><label>SpO2 (%)</label><input type="number" inputmode="decimal" placeholder="96" value="'+esc(l.respSpo2)+'" oninput="CL().respSpo2=this.value;persist()"></div>'
+    + '</div>';
+
+  // VM
+  const vmChips = VM_MODOS.map(m => '<button class="vmchip'+(l.vmModo===m?' on':'')+'" onclick="CL().vmModo=\''+m+'\';persist();render()">'+m+'</button>').join('');
+  const vmSection = '<div class="chip-wrap">'+vmChips+'</div>'
+    + '<div class="grid3">'
+    + '<div class="field"><label>FiO2 (%)</label><input type="number" inputmode="decimal" placeholder="40" value="'+esc(l.vmFio2)+'" oninput="CL().vmFio2=this.value;persist()"></div>'
+    + '<div class="field"><label>PEEP</label><input type="number" inputmode="decimal" placeholder="5" value="'+esc(l.vmPeep)+'" oninput="CL().vmPeep=this.value;persist()"></div>'
+    + '<div class="field"><label>VT (mL)</label><input type="number" inputmode="decimal" placeholder="450" value="'+esc(l.vmVt)+'" oninput="CL().vmVt=this.value;persist()"></div>'
+    + '</div>'
+    + '<div class="grid3">'
+    + '<div class="field"><label>FR (irpm)</label><input type="number" inputmode="decimal" placeholder="14" value="'+esc(l.vmFr)+'" oninput="CL().vmFr=this.value;persist()"></div>'
+    + '<div class="field"><label>PIP (cmH2O)</label><input type="number" inputmode="decimal" placeholder="25" value="'+esc(l.vmPip)+'" oninput="CL().vmPip=this.value;persist()"></div>'
+    + '<div class="field"><label>SpO2 (%)</label><input type="number" inputmode="decimal" placeholder="98" value="'+esc(l.vmSpo2)+'" oninput="CL().vmSpo2=this.value;persist()"></div>'
+    + '</div>';
+
+  // DVA
+  const vasoNomes = (l.vasoativas||[]).map(v=>v.nome);
+  const vasoChips = VASOATIVAS_LIST.filter(v=>!vasoNomes.includes(v.nome))
+    .map(v => '<button class="chip" onclick="addDVA(\''+v.nome+'\',\''+v.unit+'\')">'+v.nome+'</button>').join('');
+  const vasoRows = (l.vasoativas||[]).map((v,i)=>{
+    const uopts = DVA_UNITS.map(u => '<option value="'+u+'"'+(v.unit===u?' selected':'')+'>'+u+'</option>').join('');
+    return '<div class="drug-row">'
+      + '<input class="drug-inp" type="text" placeholder="Droga" value="'+esc(v.nome)+'" oninput="CL().vasoativas['+i+'].nome=this.value;persist()">'
+      + '<input class="drug-dose dva-dose" type="text" inputmode="decimal" placeholder="dose" value="'+esc(v.dose)+'" oninput="CL().vasoativas['+i+'].dose=this.value;persist()" style="background:transparent;border:none;outline:none;font-family:var(--mono);color:var(--accent-text);font-size:13px;width:60px;text-align:right">'
+      + '<select class="drug-unit-sel" onchange="CL().vasoativas['+i+'].unit=this.value;persist()">'+uopts+'</select>'
+      + '<button class="btn-icon" onclick="removeDVA('+i+')">×</button></div>';
+  }).join('');
+
+  // Sedação
+  const sedNomes = (l.sedDrogas||[]).map(v=>v.nome);
+  const sedChips = SED_LIST.filter(v=>!sedNomes.includes(v.nome))
+    .map(v => '<button class="chip" onclick="addSed(\''+v.nome+'\',\''+v.unit+'\')">'+v.nome+'</button>').join('');
+  const sedEscOpts = SED_ESCALAS.map(e => '<option value="'+e+'"'+(l.sedEscala===e?' selected':'')+'>'+e+'</option>').join('');
+  const sedRows = (l.sedDrogas||[]).map((v,i)=>{
+    const uopts = SED_UNITS.map(u => '<option value="'+u+'"'+(v.unit===u?' selected':'')+'>'+u+'</option>').join('');
+    return '<div class="drug-row">'
+      + '<input class="drug-inp" type="text" placeholder="Droga" value="'+esc(v.nome)+'" oninput="CL().sedDrogas['+i+'].nome=this.value;persist()">'
+      + '<input class="sed-dose" type="text" inputmode="decimal" placeholder="dose" value="'+esc(v.dose)+'" oninput="CL().sedDrogas['+i+'].dose=this.value;persist()" style="background:transparent;border:none;outline:none;font-family:var(--mono);color:var(--accent-text);font-size:13px;width:60px;text-align:right">'
+      + '<select class="drug-unit-sel" onchange="CL().sedDrogas['+i+'].unit=this.value;persist()">'+uopts+'</select>'
+      + '<button class="btn-icon" onclick="removeSed('+i+')">×</button></div>';
+  }).join('');
+
+  const balOpts = ['24h','12h','6h','plantão'].map(o => '<option'+(l.balPeriodo===o?' selected':'')+'>'+o+'</option>').join('');
+
+  return '<div class="section-label">Via aérea e ventilação</div>'
+    + '<div style="display:flex;gap:6px;margin-bottom:10px">'
+    + '<button class="vmchip'+(rm==='espontanea'?' on':'')+'" onclick="CL().respMode=\'espontanea\';persist();render()">Espontânea</button>'
+    + '<button class="vmchip'+(rm==='vm'?' on':'')+'" onclick="CL().respMode=\'vm\';persist();render()">VM Invasiva</button>'
+    + '</div>'
+    + (rm==='espontanea' ? espSection : vmSection)
+    + '<hr class="divider">'
+    + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'
+    + '<span class="section-label" style="margin-bottom:0">Drogas vasoativas</span></div>'
+    + '<div class="chip-wrap">'+vasoChips+'</div>'
+    + vasoRows
+    + '<hr class="divider">'
+    + '<div class="section-label">Sedação e analgesia</div>'
+    + '<div class="grid2" style="margin-bottom:10px">'
+    + '<div class="field" style="margin-bottom:0"><label>Escala</label><select onchange="CL().sedEscala=this.value;persist()">'+sedEscOpts+'</select></div>'
+    + '<div class="field" style="margin-bottom:0"><label>Score atual</label><input type="text" placeholder="ex: -2" value="'+esc(l.sedScore)+'" oninput="CL().sedScore=this.value;persist()"></div>'
+    + '</div>'
+    + '<div class="chip-wrap">'+sedChips+'</div>'
+    + sedRows
+    + '<hr class="divider">'
+    + '<div class="section-label">Diurese e balanço hídrico</div>'
+    + '<div class="grid3">'
+    + '<div class="field"><label>Diurese (mL)</label><input type="number" inputmode="numeric" placeholder="800" value="'+esc(l.diurese)+'" oninput="CL().diurese=this.value;persist()"></div>'
+    + '<div class="field"><label>BH (mL)</label><input type="number" inputmode="numeric" placeholder="-300" value="'+esc(l.balanco)+'" oninput="CL().balanco=this.value;persist()"></div>'
+    + '<div class="field"><label>Período</label><select onchange="CL().balPeriodo=this.value;persist()">'+balOpts+'</select></div>'
+    + '</div>';
+}
+
+// ── ABA EXAMES ──────────────────────────────────────────────────────────────
+function rExames(l){
+  const adicionados = EXAMES_PADRAO.filter(e => e.key in (l.exames||{}));
+  const disponiveis = EXAMES_PADRAO.filter(e => !(e.key in (l.exames||{})));
+  const rows = adicionados.map(e=>{
+    const v = (l.exames||{})[e.key]||'';
+    const flag = examFlag(e.key,v);
+    const dc = flag==='low'?'var(--blue)':flag==='high'?'var(--red-text)':v?'var(--green)':'transparent';
+    return '<div class="exam-item">'
+      + '<span class="exam-lbl">'+e.name+(e.unit?' <span style="opacity:.45;font-size:10px">'+e.unit+'</span>':'')+'</span>'
+      + '<input id="ex_'+e.key+'" class="exam-inp" type="text" inputmode="decimal" placeholder="digitar..." value="'+esc(v)+'" oninput="setExame(\''+e.key+'\',this.value)">'
+      + '<div class="exam-dot" style="background:'+dc+'"></div>'
+      + '<button class="btn-icon" onclick="removeExame(\''+e.key+'\')" style="font-size:12px">×</button></div>';
+  }).join('');
+
+  const customRows = (l.customExames||[]).map((e,i)=>
+    '<div class="exam-item">'
+    + '<input class="cex-nome exam-lbl" type="text" placeholder="Nome exame" style="border:none;background:transparent;outline:none;font-family:var(--sans);min-width:80px" value="'+esc(e.nome)+'" oninput="CL().customExames['+i+'].nome=this.value;persist()">'
+    + '<input class="exam-inp" type="text" placeholder="resultado" value="'+esc(e.valor)+'" oninput="CL().customExames['+i+'].valor=this.value;learnExame(CL().customExames['+i+'].nome);persist()">'
+    + '<button class="btn-icon" onclick="CL().customExames.splice('+i+',1);persist();render()" style="font-size:12px">×</button></div>'
+  ).join('');
+
+  const chips = disponiveis.map(e=>'<button class="chip" onclick="addExame(\''+e.key+'\')">'+e.name+'</button>').join('');
+  return '<div class="section-label" style="margin-bottom:6px">Toque para adicionar</div>'
+    + '<div class="chip-wrap">'+chips+'</div>'
+    + (adicionados.length||(l.customExames||[]).length ? '<hr class="divider">' : '')
+    + rows + customRows
+    + '<button class="btn btn-sm btn-full" style="margin-top:6px" onclick="addCustomExame()">+ Exame personalizado</button>';
+}
+
+// ── ABA PENDÊNCIAS ──────────────────────────────────────────────────────────
+function rPendencias(l){
+  const rows = (l.pendencias||[]).map((p,i)=>
+    '<div class="pend-item"'+(p.feito?' style="opacity:.5"':'')+'>'+
+    '<div class="pend-check'+(p.feito?' done':'')+'" onclick="togglePend('+i+')">'+(p.feito?'✓':'')+'</div>'+
+    '<textarea class="pend-inp" rows="1" style="'+(p.feito?'text-decoration:line-through;color:var(--text3)':'')+'" oninput="CL().pendencias['+i+'].texto=this.value;persist()" placeholder="Pendência...">'+esc(p.texto)+'</textarea>'+
+    '<button class="btn-icon" onclick="removePend('+i+')">×</button></div>'
+  ).join('');
+  return '<div class="section-label">Pendências</div>'
+    + rows
+    + '<button class="btn btn-sm" style="margin-bottom:12px" onclick="addPendencia()">+ Adicionar pendência</button>'
+    + '<hr class="divider">'
+    + '<div class="section-label">Condutas</div>'
+    + '<div class="field"><textarea placeholder="• Iniciou ATB\n• Colheu HMC x2\n• Programar TC tórax" oninput="CL().condutas=this.value;persist()" style="min-height:90px">'+esc(l.condutas)+'</textarea></div>'
+    + '<hr class="divider">'
+    + '<div class="section-label">Observações livres</div>'
+    + '<div class="field"><textarea placeholder="Família, contexto, informações adicionais..." oninput="CL().obs=this.value;persist()" style="min-height:70px">'+esc(l.obs)+'</textarea></div>';
+}
+
+// ── BIC TAB ─────────────────────────────────────────────────────────────────
+function rBIC(){
+  const drug = BIC.find(d=>d.nome===S.bicDrug) || BIC[0];
+  const peso = parseFloat(S.bicPeso)||null;
+  const sliderDose = doseFromSlider(drug, S.bicSlider);
+  const displayDose = S.bicDose!=='' ? parseFloat(S.bicDose)||sliderDose : sliderDose;
+  const mlH = peso ? calcBIC(drug, peso, displayDose) : null;
+
+  // Extra conversions
+  let extraLine = '';
+  if(mlH && peso){
+    const p = parseFloat(peso);
+    if(drug.doseUnit==='mcg/kg/min'){
+      const mgH = displayDose*p*60/1000;
+      extraLine = fmtB(displayDose)+' mcg/kg/min = '+fmtB(displayDose*p)+' mcg/min = '+fmtB(mgH)+' mg/h';
+    } else if(drug.doseUnit==='mcg/kg/h'){
+      extraLine = fmtB(displayDose)+' mcg/kg/h = '+fmtB(displayDose*p)+' mcg/h';
+    } else if(drug.doseUnit==='mg/kg/h'){
+      extraLine = fmtB(displayDose)+' mg/kg/h = '+fmtB(displayDose*p)+' mg/h';
+    }
+  }
+
+  const cats = [...new Set(BIC.map(d=>d.cat))];
+  const catBtns = cats.map(cat =>
+    '<button class="vmchip'+(S.bicCat===cat?' on':'')+'" onclick="S.bicCat=\''+cat+'\';S.bicDrug=BIC.find(d=>d.cat===\''+cat+'\').nome;S.bicDose=\'\';S.bicSlider=30;render()">'+cat+'</button>'
+  ).join('');
+  const drugBtns = BIC.filter(d=>d.cat===S.bicCat).map(d =>
+    '<button class="chip'+(S.bicDrug===d.nome?' active':'')+'" onclick="S.bicDrug=\''+d.nome+'\';S.bicDose=\'\';S.bicSlider=30;render()" style="font-size:11px">'+d.nome+'</button>'
+  ).join('');
+
+  const concLabel = fmtB(drug.concDef) + (drug.concIsMcg?'mcg':'mg') + '/' + drug.concVol + 'ml';
+
+  return '<div class="card">'
+    + '<div class="section-label">Calculadora BIC</div>'
+    + '<div class="field" style="margin-bottom:0"><label>Peso do paciente (kg)</label>'
+    + '<input type="number" inputmode="decimal" placeholder="ex: 70" value="'+esc(S.bicPeso)+'" oninput="S.bicPeso=this.value;render()" style="font-size:16px;font-family:var(--mono);font-weight:600">'
+    + '</div></div>'
+
+    + '<div class="card">'
+    + '<div class="section-label">Categoria</div>'
+    + '<div class="chip-wrap">'+catBtns+'</div>'
+    + '<div class="section-label" style="margin-top:4px">Droga</div>'
+    + '<div class="chip-wrap">'+drugBtns+'</div>'
+    + '</div>'
+
+    + '<div class="card">'
+    + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">'
+    + '<div class="section-label" style="margin-bottom:0">'+drug.nome+'</div>'
+    + '<div style="font-size:10px;color:var(--text3);font-family:var(--mono);text-align:right">'+concLabel+'</div>'
+    + '</div>'
+    + '<div style="font-size:11px;color:var(--text3);margin-bottom:12px;line-height:1.5;padding:6px 8px;background:var(--bg3);border-radius:var(--rs)">'+drug.nota+'</div>'
+
+    + '<div class="field" style="margin-bottom:12px">'
+    + '<label>Concentração (editável)</label>'
+    + '<input type="text" placeholder="'+concLabel+'" value="'+esc(S.bicConcOverride)+'" oninput="S.bicConcOverride=this.value" style="font-family:var(--mono);font-size:12px">'
+    + '</div>'
+
+    + '<div style="margin-bottom:14px">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--text3);margin-bottom:6px">'
+    + '<span>'+fmtB(drug.min)+'</span>'
+    + '<span style="color:var(--accent-text);font-weight:600;font-family:var(--mono);font-size:14px">'+fmtB(displayDose)+' '+drug.doseUnit+'</span>'
+    + '<span>'+fmtB(drug.max)+'</span>'
+    + '</div>'
+    + '<input type="range" min="0" max="100" step="1" value="'+S.bicSlider+'" oninput="S.bicSlider=parseInt(this.value);S.bicDose=\'\';render()">'
+    + '<div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text3);margin-top:3px"><span>mín</span><span>dose usual</span><span>máx</span></div>'
+    + '</div>'
+
+    + '<div class="field" style="margin-bottom:12px">'
+    + '<label>Ou digitar dose manualmente ('+drug.doseUnit+')</label>'
+    + '<input type="number" inputmode="decimal" placeholder="'+fmtB(displayDose)+'" value="'+esc(S.bicDose)+'" oninput="S.bicDose=this.value;if(this.value){S.bicSlider='+sliderFromDose(drug,displayDose)+';} render()" style="font-family:var(--mono);font-size:15px;font-weight:600">'
+    + '</div>'
+
+    + (peso
+      ? '<div class="bic-result">'
+        + '<div style="font-size:11px;color:var(--text3);margin-bottom:6px">Resultado para '+peso+'kg</div>'
+        + '<div class="bic-big">'+(mlH?fmtB(mlH):'—')+'</div>'
+        + '<div class="bic-unit">ml/h</div>'
+        + '<div class="bic-sub">'
+        + fmtB(displayDose)+' '+drug.doseUnit
+        + (extraLine ? '<br><span style="font-size:11px">'+extraLine+'</span>' : '')
+        + '</div>'
+        + '</div>'
+      : '<div style="background:var(--bg3);border:.5px solid var(--border);border-radius:var(--r);padding:1.5rem;text-align:center;color:var(--text3);font-size:13px">Informe o peso para calcular o resultado em ml/h</div>'
+    )
+    + '</div>'
+
+    + '<div style="padding:0 0 .5rem;font-size:10px;color:var(--text3);text-align:center">Concentrações são sugestões padrão. Confirme a diluição prescrita antes de ajustar a bomba.</div>';
+}
+
+// ── PASSAGEM ────────────────────────────────────────────────────────────────
+function rPassagem(){
+  const txt = gerarTexto();
+  const ocp  = S.leitos.filter(l=>l.ocupado).length;
+  const vm   = S.leitos.filter(l=>l.respMode==='vm').length;
+  const pend = S.leitos.reduce((a,l)=>a+(l.pendencias||[]).filter(p=>p.texto&&!p.feito).length,0);
+  const pendCards = S.leitos
+    .filter(l=>l.ocupado&&(l.pendencias||[]).some(p=>p.texto&&!p.feito))
+    .map(l=>'<div style="margin-bottom:10px"><div style="font-size:11px;font-weight:500;color:var(--accent-text);margin-bottom:4px">Leito '+l.num+' — '+(l.nome||'Paciente')+'</div>'
+      + l.pendencias.filter(p=>p.texto&&!p.feito).map(p=>'<div style="font-size:12px;color:var(--amber-text);padding:2px 0">🔴 '+p.texto+'</div>').join('')
+      + '</div>').join('')
+    || '<div style="font-size:12px;color:var(--green-text)">✅ Nenhuma pendência aberta</div>';
+
+  return '<div class="card">'
+    + '<div class="section-label">Resumo</div>'
+    + '<div class="grid3">'
+    + '<div style="text-align:center;padding:.5rem"><div style="font-size:22px;font-weight:600;font-family:var(--mono)">'+ocp+'</div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">leitos</div></div>'
+    + '<div style="text-align:center;padding:.5rem"><div style="font-size:22px;font-weight:600;font-family:var(--mono);color:'+(pend?'var(--amber-text)':'var(--green-text)')+'">'+pend+'</div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">pendências</div></div>'
+    + '<div style="text-align:center;padding:.5rem"><div style="font-size:22px;font-weight:600;font-family:var(--mono)">'+vm+'</div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">em VM</div></div>'
+    + '</div></div>'
+
+    + '<div class="card">'
+    + '<div class="section-label">Texto para WhatsApp</div>'
+    + '<div class="wa-box">'+txt+'</div>'
+    + '<div style="display:flex;gap:8px">'
+    + '<button class="btn btn-sm" style="flex:1;background:var(--green);color:#fff;border-color:var(--green)" onclick="copiar()">📋 Copiar texto</button>'
+    + '<button class="btn btn-sm" onclick="render()">↺ Atualizar</button>'
+    + '</div></div>'
+
+    + '<div class="card"><div class="section-label">Pendências abertas</div>'+pendCards+'</div>';
+}
+
+function copiar(){
+  const txt = gerarTexto();
+  if(navigator.clipboard){ navigator.clipboard.writeText(txt).then(()=>toast('✓ Copiado!')).catch(()=>fallbackCopy(txt)); }
+  else fallbackCopy(txt);
+}
+function fallbackCopy(txt){ const ta=document.createElement('textarea'); ta.value=txt; ta.style.cssText='position:fixed;opacity:0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); toast('✓ Copiado!'); }
+
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+function rConfig(){
+  const turnoOpts = ['Manhã','Tarde','Noite','12h','24h'].map(t=>'<option'+(S.plantaoTurno===t?' selected':'')+'>'+t+'</option>').join('');
+  const learnedHTML = S.learnedExames.length
+    ? S.learnedExames.map((e,i)=>'<div style="display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border:.5px solid var(--border2);border-radius:20px;font-size:11px;color:var(--text2);margin:2px">'+e+'<button style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;padding:0 0 0 4px" onclick="S.learnedExames.splice('+i+',1);persist();render()">×</button></div>').join('')
+    : '<div style="font-size:12px;color:var(--text3)">Nenhum exame personalizado ainda.</div>';
+
+  return '<div class="card">'
+    + '<div class="section-label">Dados do plantão</div>'
+    + '<div class="field"><label>Médico responsável</label><input type="text" placeholder="Seu nome" value="'+esc(S.medicoNome)+'" oninput="S.medicoNome=this.value;persist()"></div>'
+    + '<div class="field"><label>Turno</label><select onchange="S.plantaoTurno=this.value;persist()">'+turnoOpts+'</select></div>'
+    + '</div>'
+
+    + '<div class="card">'
+    + '<div class="section-label">Exames aprendidos</div>'
+    + '<div class="info-bar">Exames personalizados ficam disponíveis em todos os leitos.</div>'
+    + '<div style="display:flex;flex-wrap:wrap;gap:4px">'+learnedHTML+'</div>'
+    + '</div>'
+
+    + '<div class="card">'
+    + '<div class="section-label">Novo plantão</div>'
+    + '<div class="info-bar">Limpa todos os leitos. Configurações mantidas.</div>'
+    + '<button class="btn btn-danger btn-sm" onclick="novoPlantao()">🔄 Iniciar novo plantão</button>'
+    + '</div>'
+
+    + '<div class="card">'
+    + '<div class="section-label">Backup</div>'
+    + '<div class="info-bar">Dados no localStorage. Exporte antes de trocar de dispositivo.</div>'
+    + '<div style="display:flex;gap:8px">'
+    + '<button class="btn btn-primary btn-sm" style="flex:1" onclick="exportData()">Exportar JSON</button>'
+    + '<label class="btn btn-sm" style="flex:1;cursor:pointer">Importar JSON<input type="file" accept=".json" style="display:none" onchange="importData(event)"></label>'
+    + '</div></div>'
+
+    + '<div class="card">'
+    + '<div class="section-label">Sobre</div>'
+    + '<div style="font-size:12px;color:var(--text2);line-height:1.9">'
+    + '<div style="font-weight:600;color:var(--accent-text)">ALTUSMED Transporte Aeromédico</div>'
+    + '<div style="color:var(--text2)">Dr. Davi Lucas Soares Nunes · CRM/PA 16.615</div>'
+    + '<div style="color:var(--text3);font-size:11px">Uso exclusivo para profissionais de saúde habilitados</div>'
+    + '<div style="color:var(--text3);font-size:10px;font-family:var(--mono);margin-top:4px">'+APP_VER+' · 2026</div>'
+    + '</div></div>'
+
+    + '<div class="card pwa-hide">'
+    + '<div class="section-label">Instalar como app</div>'
+    + '<div class="info-bar"><strong>iPhone:</strong> Safari → Compartilhar → Adicionar à Tela de Início<br><strong>Android:</strong> Chrome → Menu → Adicionar à tela inicial</div>'
+    + '</div>';
+}
+
+function novoPlantao(){ if(!confirm('Iniciar novo plantão?\n\nTodos os leitos serão limpos.')) return; S.leitos=[1,2,3,4].map(emptyLeito); persist(); toast('Novo plantão iniciado'); render(); }
+function exportData(){ const blob=new Blob([JSON.stringify({leitos:S.leitos,learnedExames:S.learnedExames,medicoNome:S.medicoNome,plantaoTurno:S.plantaoTurno,exportDate:new Date().toISOString()},null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='uti_plantao_'+new Date().toISOString().split('T')[0]+'.json'; a.click(); toast('Backup exportado'); }
+function importData(e){ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=ev=>{ try{ const d=JSON.parse(ev.target.result); if(d.leitos) S.leitos=d.leitos.map((l,i)=>({...emptyLeito(i+1),...l})); if(d.learnedExames) S.learnedExames=d.learnedExames; if(d.medicoNome) S.medicoNome=d.medicoNome; if(d.plantaoTurno) S.plantaoTurno=d.plantaoTurno; persist(); toast('✓ Importado'); render(); }catch{ alert('Arquivo inválido.'); } }; r.readAsText(f); e.target.value=''; }
+
+// ── PWA ─────────────────────────────────────────────────────────────────────
+function injectManifest(){ try{ const m={name:'UTI Plantão',short_name:'UTI Plantão',start_url:'.',display:'standalone',background_color:'#07090f',theme_color:'#07090f',icons:[{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%2307090f'/%3E%3Crect x='56' y='40' width='80' height='112' rx='8' fill='%234f6fff' opacity='.2'/%3E%3Crect x='72' y='60' width='48' height='6' rx='3' fill='%234f6fff'/%3E%3Crect x='72' y='76' width='36' height='4' rx='2' fill='%234f6fff' opacity='.6'/%3E%3Crect x='72' y='90' width='42' height='4' rx='2' fill='%234f6fff' opacity='.6'/%3E%3Crect x='72' y='104' width='30' height='4' rx='2' fill='%234f6fff' opacity='.4'/%3E%3C/svg%3E",sizes:'192x192',type:'image/svg+xml'}]}; const link=document.createElement('link'); link.rel='manifest'; link.href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/json'})); document.head.appendChild(link); }catch(e){} }
+function registerSW(){ try{ if(!('serviceWorker' in navigator)) return; const sw="const C='uti-v11';self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.add('/')));self.skipWaiting();});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))));});self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>r))));"; const blob=new Blob([sw],{type:'application/javascript'}); navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{}); }catch(e){} }
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+try{ loadData(); }catch(e){ console.warn(e); }
+try{ injectManifest(); }catch(e){}
+try{ registerSW(); }catch(e){}
+try{ render(); }catch(e){ document.getElementById('content').innerHTML='<div style="padding:2rem;color:#f08080;font-family:monospace;font-size:12px">Erro: '+e.message+'</div>'; }
+</script>
+</body>
+</html>
